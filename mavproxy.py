@@ -1672,6 +1672,8 @@ if __name__ == '__main__':
                       help="MAVLink stream rate")
     parser.add_option("--source-system", dest='SOURCE_SYSTEM', type='int',
                       default=255, help='MAVLink source system for this GCS')
+    #TODO Make it handle more than one target system
+    #TODO Also, figure out why it ignores target-system
     parser.add_option("--target-system", dest='TARGET_SYSTEM', type='int',
                       default=1, help='MAVLink target master system')
     parser.add_option("--target-component", dest='TARGET_COMPONENT', type='int',
