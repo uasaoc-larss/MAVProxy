@@ -334,6 +334,9 @@ class MAVLink(object):
                 else:
                     m = self.decode(mbuf)
                     self.total_packets_received += 1
+                # MODIFIED drop the packet if it is not from the source we are listening to
+                if m.get_srcSystem() != self.srcSystem or m.get_srcComponent() != self.srcComponent
+                    return None
                 if self.callback:
                     self.callback(m, *self.callback_args, **self.callback_kwargs)
                 return m
