@@ -836,9 +836,11 @@ def cmd_kill(args):
 def cmd_print(args):
   '''Debugging print'''
   print("//////////////////////////////")
-  print("            (>^.^)>")
-  print("            <(^.^<)")
-  print("            ^(^.^)^")
+  master = mpstate.master()
+  lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
+  lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
+  print(lat)
+  print(lon)
   print("//////////////////////////////")
 	
 def cmd_ctrl_reset(args):
