@@ -237,7 +237,7 @@ def cmd_switch(args):
             value, mapping[value], flite_mode_ch_parm))
 
 def cmd_rc(args):
-    '''handle RC value override'''
+    '''handle RC value override'''linux
     if len(args) != 2:
         print("Usage: rc <channel|all> <pwmvalue>")
         return
@@ -1346,6 +1346,8 @@ def master_callback(m, master):
 
 def process_master(m):
     '''process packets from the MAVLink master'''
+    # This includes logging them, printing to console if in setup mode, auto-protocol detection if it's
+    # the first byte, 
     try:
         s = m.recv()
     except Exception:
@@ -1567,12 +1569,14 @@ def main_loop():
     while True:
         if mpstate is None or mpstate.status.exit:
             return
+        # Check if a line is read
         if mpstate.rl.line is not None:
             cmds = mpstate.rl.line.split(';')
             for c in cmds:
                 process_stdin(c)
             mpstate.rl.line = None
 
+        # For Windows? I think master.fd is only None if non-unix
         for master in mpstate.mav_master:
             if master.fd is None:
                 if master.port.inWaiting() > 0:
