@@ -161,7 +161,6 @@ class MPState(object):
                 return m
         return self.mav_master[self.settings.link-1]
 
-
 def get_usec():
     '''time since 1970 in microseconds'''
     return int(time.time() * 1.0e6)
@@ -199,7 +198,6 @@ def say(text, priority='important'):
 def get_mav_param(param, default=None):
     '''return a EEPROM parameter value'''
     return mpstate.mav_param.get(param, default)
-
 
 def send_rc_override():
     '''send RC override packet'''
@@ -310,7 +308,6 @@ def cmd_accelcal(args):
         # tell the APM that we've done as requested
         mav.mav.command_ack_send(count, 1)
 
-
 def cmd_reboot(args):
     '''reboot autopilot'''
     mpstate.master().reboot_autopilot()
@@ -420,7 +417,6 @@ def save_waypoints(filename):
         return
     print("Saved %u waypoints to %s" % (mpstate.status.wploader.count(), filename))
 
-
 def cmd_wp(args):
     '''waypoint commands'''
     if len(args) < 1:
@@ -466,7 +462,6 @@ def cmd_wp(args):
     else:
         print("Usage: wp <list|load|save|set|show|clear>")
 
-
 def fetch_fence_point(i):
     '''fetch one fence point'''
     mpstate.master().mav.fence_fetch_point_send(mpstate.status.target_system,
@@ -483,8 +478,6 @@ def fetch_fence_point(i):
         mpstate.console.error("Failed to fetch point %u" % i)
         return None
     return p
-
-
 
 def load_fence(filename):
     '''load fence points from a file'''
@@ -516,7 +509,6 @@ def load_fence(filename):
             return
     param_set('FENCE_ACTION', action)
 
-
 def list_fence(filename):
     '''list fence points, optionally saving to a file'''
 
@@ -547,7 +539,6 @@ def list_fence(filename):
         mpstate.status.fenceloader.save(fencetxt)
         print("Saved fence to %s" % fencetxt)
 
-
 def cmd_fence(args):
     '''geo-fence commands'''
     if len(args) < 1:
@@ -576,12 +567,10 @@ def cmd_fence(args):
     else:
         print("Usage: fence <list|load|save|show|clear>")
 
-
 def param_set(name, value, retries=3):
     '''set a parameter'''
     name = name.upper()
     return mpstate.mav_param.mavset(mpstate.master(), name, value, retries=retries)
-
 
 def cmd_param(args):
     '''control parameters'''
@@ -681,7 +670,6 @@ def cmd_alt(args):
     '''show altitude'''
     print("Altitude:  %.1f" % mpstate.status.altitude)
 
-
 def cmd_up(args):
     '''adjust TRIM_PITCH_CD up by 5 degrees'''
     if len(args) == 0:
@@ -699,11 +687,9 @@ def cmd_up(args):
     print("Adjusting TRIM_PITCH_CD from %d to %d" % (old_trim, new_trim))
     param_set('TRIM_PITCH_CD', new_trim)
 
-
 def cmd_setup(args):
     mpstate.status.setup_mode = True
     mpstate.rl.set_prompt("")
-
 
 def cmd_reset(args):
     print("Resetting master")
@@ -784,7 +770,6 @@ def cmd_module(args):
     else:
         print(usage)
 
-
 def cmd_alias(args):
     '''alias commands'''
     usage = "usage: alias <add|remove|list>"
@@ -815,11 +800,9 @@ def cmd_alias(args):
         print(usage)
         return
 
-
 def cmd_arm(args):
   '''arm motors'''
   mpstate.master().arducopter_arm()
-
 
 def cmd_disarm(args):
   '''disarm motors'''
@@ -837,7 +820,33 @@ def import_package(name):
         mod = getattr(mod, comp)
     return mod
 
-
+# 0 Ailerons -> 1000
+# 1 Elevator -> 1000
+# 2 Throttle -> 1000
+# 3 Rudder -> Same
+  
+def cmd_kill(args):
+  '''Kill the plane for doing a bad thing'''
+  mpstate.status.override[0] = 1000
+  mpstate.status.override[1] = 2000
+  mpstate.status.override[2] = 1000
+  mpstate.status.override_counter = 0
+  send_rc_override()
+	
+def cmd_print(args):
+  '''Debugging print'''
+  print("//////////////////////////////")
+  print("            (>^.^)>")
+  print("            <(^.^<)")
+  print("            ^(^.^)^")
+  print("//////////////////////////////")
+	
+def cmd_ctrl_reset(args):
+  '''Give the rc control back to the controller'''
+  mpstate.status.override_counter = 0
+  for i in range(8):
+    mpstate.status.override[i] = 0
+	
 command_map = {
     'switch'  : (cmd_switch,   'set RC switch (1-5), 0 disables'),
     'rc'      : (cmd_rc,       'override a RC channel value'),
@@ -868,7 +877,10 @@ command_map = {
     'module'  : (cmd_module,   'module commands'),
     'alias'   : (cmd_alias,    'command aliases'),
     'arm'     : (cmd_arm,      'ArduCopter arm motors'),
-    'disarm'  : (cmd_disarm,   'ArduCopter disarm motors')
+    'disarm'  : (cmd_disarm,   'ArduCopter disarm motors'),
+	'kill'    : (cmd_kill,     'Crashes the plane'),
+	'creset'  : (cmd_ctrl_reset,'Gives radio control back'),
+	'print'   : (cmd_print,    'Print something out for debugging')
     }
 
 def process_stdin(line):
@@ -916,7 +928,6 @@ def process_stdin(line):
     except Exception as e:
         print("ERROR in command: %s" % str(e))
 
-
 def scale_rc(servo, min, max, param):
     '''scale a PWM value'''
     # default to servo range of 1000 to 2000
@@ -934,7 +945,6 @@ def scale_rc(servo, min, max, param):
     if v > max:
         v = max
     return v
-
 
 def system_check():
     '''check that the system is ready to fly'''
@@ -978,7 +988,6 @@ def system_check():
     if ok:
         say("All OK SYSTEM READY TO FLY")
 
-
 def beep():
     f = open("/dev/tty", mode="w")
     f.write(chr(7))
@@ -997,7 +1006,6 @@ def vcell_to_battery_percent(vcell):
         return 0.0 + 17.0 * (vcell - 3.20) / (3.81 - 3.20)
     # it's dead or disconnected
     return 0.0
-
 
 def battery_update(SYS_STATUS):
     '''update battery level'''
@@ -1020,8 +1028,6 @@ def battery_update(SYS_STATUS):
         mpstate.status.avionics_battery_level = avionics_battery_level
     else:
         mpstate.status.avionics_battery_level = (95*mpstate.status.avionics_battery_level + 5*avionics_battery_level)/100
-
-
 
 def battery_report():
     '''report battery level'''
@@ -1047,7 +1053,6 @@ def battery_report():
         mpstate.status.last_avionics_battery_announce = avionics_rbattery_level
     if avionics_rbattery_level <= 20:
         say("Avionics battery warning")
-
 
 def handle_msec_timestamp(m, master):
     '''special handling for MAVLink packets with a time_boot_ms field'''
@@ -1094,7 +1099,6 @@ def master_send_callback(m, master):
         usec = get_usec()
         usec = (usec & ~3) | 3 # linknum 3
         mpstate.logqueue.put(str(struct.pack('>Q', usec) + m.get_msgbuf()))
-
 
 def master_callback(m, master):
     '''process mavlink message m on master, sending any messages to recipients'''
@@ -1372,8 +1376,6 @@ def process_master(m):
                     mpstate.console.writeln("MAV error: %s" % msg)
                 mpstate.status.mav_error += 1
 
-
-
 def process_mavlink(slave):
     '''process packets from MAVLink slaves, forwarding to the master'''
     try:
@@ -1393,7 +1395,6 @@ def process_mavlink(slave):
         for m in msgs:
             mpstate.master().write(m.get_msgbuf())
     mpstate.status.counters['Slave'] += 1
-
 
 def mkdir_p(dir):
     '''like mkdir -p'''
@@ -1555,7 +1556,6 @@ def periodic_tasks():
                     traceback.print_exception(exc_type, exc_value, exc_traceback,
                                               limit=2, file=sys.stdout)
 
-
 def main_loop():
     '''main processing loop'''
     if not mpstate.status.setup_mode and not opts.nowait:
@@ -1627,8 +1627,6 @@ def main_loop():
                     # on an exception, remove it from the select list
                     mpstate.select_extra.pop(fd)
 
-
-
 def input_loop():
     '''wait for user input'''
     while True:
@@ -1640,7 +1638,6 @@ def input_loop():
             mpstate.status.exit = True
             sys.exit(1)
         mpstate.rl.line = line
-
 
 def run_script(scriptfile):
     '''run a script file'''
@@ -1659,7 +1656,6 @@ def run_script(scriptfile):
             mpstate.console.writeln("-> %s" % line)
         process_stdin(line)
     f.close()
-
 
 if __name__ == '__main__':
 
