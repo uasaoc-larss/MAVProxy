@@ -145,7 +145,7 @@ class mavfile(object):
         (callback, callback_args, callback_kwargs) = (self.mav.callback,
                                                       self.mav.callback_args,
                                                       self.mav.callback_kwargs)
-        self.mav = mavlink.MAVLink(self, srcSystem=self.source_system tgtSystem=self.target_system,
+        self.mav = mavlink.MAVLink(self, srcSystem=self.source_system, tgtSystem=self.target_system,
                 tgtComponent=self.target_component)
         self.mav.robust_parsing = self.robust_parsing
         self.WIRE_PROTOCOL_VERSION = mavlink.WIRE_PROTOCOL_VERSION
