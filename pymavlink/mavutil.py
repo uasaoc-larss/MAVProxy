@@ -81,7 +81,7 @@ set_dialect(os.environ['MAVLINK_DIALECT'])
 
 class mavfile(object):
     '''a generic mavlink port'''
-    def __init__(self, fd, address, source_system=255, notimestamps=False, input=True):
+    def __init__(self, fd, address, source_system=255, target_system=1, target_component=0, notimestamps=False, input=True):
         global mavfile_global
         if input:
             mavfile_global = self
@@ -94,12 +94,13 @@ class mavfile(object):
         else:
             self.messages['HOME'] = mavlink.MAVLink_gps_raw_message(0,0,0,0,0,0,0,0,0)
         self.params = {}
-        self.target_system = 0
-        self.target_component = 0
+        self.target_system = target_system
+        self.target_component = target_component
         self.source_system = source_system
         self.first_byte = True
         self.robust_parsing = True
-        self.mav = mavlink.MAVLink(self, srcSystem=self.source_system)
+        self.mav = mavlink.MAVLink(self, srcSystem=self.source_system, tgtSystem=self.target_system,
+                tgtComponent=self.target_component)
         self.mav.robust_parsing = self.robust_parsing
         self.logfile = None
         self.logfile_raw = None
@@ -144,7 +145,8 @@ class mavfile(object):
         (callback, callback_args, callback_kwargs) = (self.mav.callback,
                                                       self.mav.callback_args,
                                                       self.mav.callback_kwargs)
-        self.mav = mavlink.MAVLink(self, srcSystem=self.source_system)
+        self.mav = mavlink.MAVLink(self, srcSystem=self.source_system tgtSystem=self.target_system,
+                tgtComponent=self.target_component)
         self.mav.robust_parsing = self.robust_parsing
         self.WIRE_PROTOCOL_VERSION = mavlink.WIRE_PROTOCOL_VERSION
         (self.mav.callback, self.mav.callback_args, self.mav.callback_kwargs) = (callback,
@@ -620,7 +622,8 @@ def set_close_on_exec(fd):
 
 class mavserial(mavfile):
     '''a serial mavlink port'''
-    def __init__(self, device, baud=115200, autoreconnect=False, source_system=255):
+    def __init__(self, device, baud=115200, autoreconnect=False, source_system=255, target_system=1,
+            target_component=0):
         import serial
         self.baud = baud
         self.device = device
@@ -632,7 +635,8 @@ class mavserial(mavfile):
             set_close_on_exec(fd)
         except Exception:
             fd = None
-        mavfile.__init__(self, fd, device, source_system=source_system)
+        mavfile.__init__(self, fd, device, source_system=source_system, target_system=target_system,
+                target_component=target_component)
 
     def close(self):
         self.port.close()
@@ -673,7 +677,7 @@ class mavserial(mavfile):
 
 class mavudp(mavfile):
     '''a UDP mavlink socket'''
-    def __init__(self, device, input=True, broadcast=False, source_system=255):
+    def __init__(self, device, input=True, broadcast=False, source_system=255, target_system=1, target_component=0):
         a = device.split(':')
         if len(a) != 2:
             print("UDP ports must be specified as host:port")
@@ -690,7 +694,7 @@ class mavudp(mavfile):
         set_close_on_exec(self.port.fileno())
         self.port.setblocking(0)
         self.last_address = None
-        mavfile.__init__(self, self.port.fileno(), device, source_system=source_system, input=input)
+        mavfile.__init__(self, self.port.fileno(), device, source_system=source_system, target_system=target_system, target_component=target_component, input=input)
 
     def close(self):
         self.port.close()
@@ -732,7 +736,7 @@ class mavudp(mavfile):
 
 class mavtcp(mavfile):
     '''a TCP mavlink socket'''
-    def __init__(self, device, source_system=255):
+    def __init__(self, device, source_system=255, target_system=1, target_component=0):
         a = device.split(':')
         if len(a) != 2:
             print("TCP ports must be specified as host:port")
@@ -743,7 +747,8 @@ class mavtcp(mavfile):
         self.port.setblocking(0)
         set_close_on_exec(self.port.fileno())
         self.port.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
-        mavfile.__init__(self, self.port.fileno(), device, source_system=source_system)
+        mavfile.__init__(self, self.port.fileno(), device, source_system=source_system,
+                target_system=target_system, target_component=target_component)
 
     def close(self):
         self.port.close()
@@ -770,7 +775,8 @@ class mavlogfile(mavfile):
     '''a MAVLink logfile reader/writer'''
     def __init__(self, filename, planner_format=None,
                  write=False, append=False,
-                 robust_parsing=True, notimestamps=False, source_system=255):
+                 robust_parsing=True, notimestamps=False, source_system=255,
+                 target_system=1, target_component=0):
         self.filename = filename
         self.writeable = write
         self.robust_parsing = robust_parsing
@@ -785,7 +791,8 @@ class mavlogfile(mavfile):
         self.f = open(filename, mode)
         self.filesize = os.path.getsize(filename)
         self.percent = 0
-        mavfile.__init__(self, None, filename, source_system=source_system, notimestamps=notimestamps)
+        mavfile.__init__(self, None, filename, source_system=source_system, target_system=target_system,
+                target_component=target_component, notimestamps=notimestamps)
         if self.notimestamps:
             self._timestamp = 0
         else:
@@ -860,7 +867,7 @@ class mavlogfile(mavfile):
 
 class mavchildexec(mavfile):
     '''a MAVLink child processes reader/writer'''
-    def __init__(self, filename, source_system=255):
+    def __init__(self, filename, source_system=255, target_system=1, target_component=0):
         from subprocess import Popen, PIPE
         import fcntl
         
@@ -874,7 +881,8 @@ class mavchildexec(mavfile):
         fl = fcntl.fcntl(self.child.stdout.fileno(), fcntl.F_GETFL)
         fcntl.fcntl(self.child.stdout.fileno(), fcntl.F_SETFL, fl | os.O_NONBLOCK)
 
-        mavfile.__init__(self, self.fd, filename, source_system=source_system)
+        mavfile.__init__(self, self.fd, filename, source_system=source_system,
+                target_system=target_system, target_component=target_component)
 
     def close(self):
         self.child.close()
@@ -889,7 +897,8 @@ class mavchildexec(mavfile):
     def write(self, buf):
         self.child.stdin.write(buf)
 
-
+#TODO Does this also need target system and component? There's a good chance, but I don't need it right
+# now. <dcp>
 def mavlink_connection(device, baud=115200, source_system=255,
                        planner_format=None, write=False, append=False,
                        robust_parsing=True, notimestamps=False, input=True,

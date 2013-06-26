@@ -241,11 +241,13 @@ class MAVLink_bad_data(MAVLink_message):
             
 class MAVLink(object):
         '''MAVLink protocol handling class'''
-        def __init__(self, file, srcSystem=0, srcComponent=0):
+        def __init__(self, file, srcSystem=0, srcComponent=0, tgtSystem=1, tgtComponent=0):
                 self.seq = 0
                 self.file = file
                 self.srcSystem = srcSystem
                 self.srcComponent = srcComponent
+                self.tgtSystem = tgtSystem
+                self.tgtComponent = tgtComponent
                 self.callback = None
                 self.callback_args = None
                 self.callback_kwargs = None
@@ -334,8 +336,8 @@ class MAVLink(object):
                 else:
                     m = self.decode(mbuf)
                     self.total_packets_received += 1
-                # MODIFIED drop the packet if it is not from the source we are listening to
-                if m.get_srcSystem() != self.srcSystem or m.get_srcComponent() != self.srcComponent
+                # MODIFIED drop the packet if it is not from the source we are listening to <dcp>
+                if m.get_srcSystem() != self.tgtSystem or m.get_srcComponent() != self.tgtComponent
                     return None
                 if self.callback:
                     self.callback(m, *self.callback_args, **self.callback_kwargs)
