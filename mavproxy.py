@@ -342,7 +342,7 @@ def process_waypoint_request(m, master):
     if (not mpstate.status.loading_waypoints or
         time.time() > mpstate.status.loading_waypoint_lasttime + 10.0):
         mpstate.status.loading_waypoints = False
-        mpstate.console.error("not loading waypoints")
+        #mpstate.console.error("not loading waypoints")
         return
     if m.seq >= mpstate.status.wploader.count():
         mpstate.console.error("Request for bad waypoint %u (max %u)" % (m.seq, mpstate.status.wploader.count()))
