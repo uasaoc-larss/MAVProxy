@@ -5,7 +5,7 @@
 
 import mp_util #from MAVProxy
 
-def readwps(pattern = 'Pattern_1_A_ccw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy\Waypoint_files'):
+def readwps(pattern = 'Pattern_1_A_ccw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy\'):
 #Imports a waypoint file into Python
 	f = open(filepath + '\\' + pattern, 'r')
         list = []
