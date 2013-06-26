@@ -237,7 +237,7 @@ def cmd_switch(args):
             value, mapping[value], flite_mode_ch_parm))
 
 def cmd_rc(args):
-    '''handle RC value override'''linux
+    '''handle RC value override'''
     if len(args) != 2:
         print("Usage: rc <channel|all> <pwmvalue>")
         return
