@@ -10,7 +10,6 @@ Released under the GNU GPL version 3 or later
 import sys, os, struct, math, time, socket
 import fnmatch, errno, threading
 import serial, Queue, select
-import wp_manipulation
 import select
 
 # allow running without installing
@@ -19,6 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..
 
 from MAVProxy.modules.lib import textconsole
 from MAVProxy.modules.lib import mp_settings
+from MAVProxy.modules.lib import wp_manipulation
 
 class MPStatus(object):
     '''hold status information about the mavproxy'''
