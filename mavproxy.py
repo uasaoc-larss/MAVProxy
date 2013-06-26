@@ -849,6 +849,21 @@ def cmd_ctrl_reset(args):
   for i in range(8):
     mpstate.status.override[i] = 0
 	
+def cmd_new_wps(args):
+  '''Upload a new waypoint pattern and set a goto waypoint. takes [waypoint file, wp number]'''
+  if len(args) == 2:
+	load_waypoints(args[0])
+	mpstate.master().waypoint_set_current_send(int(args[1]))
+  elif len(args) == 1:
+	load_waypoints(args[0])
+	master = mpstate.master()
+	lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
+	lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
+	alt = mpstate.settings.basealt
+	loc = [lat, lon, alt]
+	new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args[0]))
+	mpstate.master().waypoint_set_current_send(int(new_waypoint)) 
+		
 command_map = {
     'switch'  : (cmd_switch,   'set RC switch (1-5), 0 disables'),
     'rc'      : (cmd_rc,       'override a RC channel value'),
@@ -882,7 +897,8 @@ command_map = {
     'disarm'  : (cmd_disarm,   'ArduCopter disarm motors'),
 	'kill'    : (cmd_kill,     'Crashes the plane'),
 	'cmdreset': (cmd_ctrl_reset,'Gives radio control back'),
-	'print'   : (cmd_print,    'Print something out for debugging')
+	'print'   : (cmd_print,    'Print something out for debugging'),
+	'upwps'	  : (cmd_new_wps,  'Uploads a new wp pattern and sets a goto wp')
     }
 
 def process_stdin(line):

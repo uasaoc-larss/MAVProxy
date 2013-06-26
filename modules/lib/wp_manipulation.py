@@ -5,9 +5,9 @@
 
 import mp_util #from MAVProxy
 
-def readwps(pattern = 'Pattern_1_A_ccw', filepath = r'C:\HILSIM2\ardupilot_saved\Smithfield\Traffic Planes'):
+def readwps(pattern = 'Pattern_1_A_ccw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy\Waypoint_files'):
 #Imports a waypoint file into Python
-  f = open(filepath + '\\' + pattern + '.txt', 'r')
+	f = open(filepath + '\\' + pattern, 'r')
         list = []
         #Import waypoint file
 	for line in f:
