@@ -1074,8 +1074,8 @@ def handle_msec_timestamp(m, master):
     '''special handling for MAVLink packets with a time_boot_ms field'''
     msec = m.time_boot_ms
     if msec + 30000 < master.highest_msec:
-        say('Time has wrapped')
-        print('Time has wrapped', msec, master.highest_msec)
+        #say('Time has wrapped')
+        #print('Time has wrapped', msec, master.highest_msec)
         mpstate.status.highest_msec = msec
         for mm in mpstate.mav_master:
             mm.link_delayed = False
