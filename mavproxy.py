@@ -1767,14 +1767,19 @@ Auto-detected serial ports are:
 
     mpstate.mav_master = []
 
+    #TODO Actually use opts.SOURCE_SYSTEM when constructing mavfile classes (I think) <dcp>
     # open master link
     for mdev in opts.master:
         if mdev.startswith('tcp:'):
-            m = mavutil.mavtcp(mdev[4:])
+            m = mavutil.mavtcp(mdev[4:], target_system=mpstate.status.target_system,
+                    target_component=mpstate.status.target_component)
         elif mdev.find(':') != -1:
-            m = mavutil.mavudp(mdev, input=True)
+            m = mavutil.mavudp(mdev, input=True, target_system=mpstate.status.target_system,
+                    target_component=mpstate.status.target_component)
         else:
-            m = mavutil.mavserial(mdev, baud=opts.baudrate, autoreconnect=True)
+            m = mavutil.mavserial(mdev, baud=opts.baudrate, autoreconnect=True,
+                    target_system=mpstate.status.target_system,
+                    target_component=mpstate.status.target_component)
         m.mav.set_callback(master_callback, m)
         if hasattr(m.mav, 'set_send_callback'):
             m.mav.set_send_callback(master_send_callback, m)
