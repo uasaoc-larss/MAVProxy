@@ -1,6 +1,6 @@
 setlocal
 SET PATH=%PATH%;..\mavlink;..\mavlink\pymavlink\examples
 
-mavproxy.py --master=COM3 --baudrate=57600
+mavproxy.py --master=COM13 --baudrate=57600
 
 pause
