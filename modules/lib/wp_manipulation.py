@@ -10,14 +10,14 @@ def readwps(pattern = 'Pattern_1_A_ccw.txt', filepath = r'C:\Documents and Setti
     f = open(filepath + '\\' + pattern, 'r') 
     list = [] #Import waypoint file
     for line in f:
-		a=line.strip().split() #Remove line end tags
-		if len(a) > 3: #Don't import the first line
-			toremove = [0]*3+[1]*4 + [4]
-			for i in toremove:
-				a.pop(i) #Remove unnecessary list points
-				for j in range(4):
-					a[j] = float(a[j]) #Convert strings to floats
-			list.append(a) #Return matrix of [type, lat , lon, alt]
+        a=line.strip().split() #Remove line end tags
+        if len(a) > 3: #Don't import the first line
+            toremove = [0]*3+[1]*4 + [4]
+            for i in toremove:
+                a.pop(i) #Remove unnecessary list points
+                for j in range(4):
+                    a[j] = float(a[j]) #Convert strings to floats
+            list.append(a) #Return matrix of [type, lat , lon, alt]
         list = removeloop(list) #Return matrix of [lat , lon, alt]
         return list
 

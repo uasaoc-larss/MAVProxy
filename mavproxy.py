@@ -847,20 +847,27 @@ def cmd_ctrl_reset(args):
   for i in range(8):
     mpstate.status.override[i] = 0
 	
+def new_pattern(args):
+    load_waypoints(args[0])
+  
+def set_wps(args):
+    '''Upload a new waypoint pattern and set a goto waypoint. takes [waypoint file, wp number]'''
+    #load_waypoints(args[0])
+    #if len(args) == 2:
+    #    mpstate.master().waypoint_set_current_send(int(args[1]))
+    #if len(args) == 0:
+    master = mpstate.master()
+    lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
+    lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
+    alt = mpstate.settings.basealt
+    loc = [lat, lon, alt]
+    new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args[0]))
+    mpstate.master().waypoint_set_current_send(int(new_waypoint))
+    
 def cmd_new_wps(args):
-  '''Upload a new waypoint pattern and set a goto waypoint. takes [waypoint file, wp number]'''
-  if len(args) == 2:
-	load_waypoints(args[0])
-	mpstate.master().waypoint_set_current_send(int(args[1]))
-  elif len(args) == 1:
-	load_waypoints(args[0])
-	master = mpstate.master()
-	lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
-	lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
-	alt = mpstate.settings.basealt
-	loc = [lat, lon, alt]
-	new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args[0]))
-	mpstate.master().waypoint_set_current_send(int(new_waypoint)) 
+    new_pattern(args)
+    set_wps()
+    
 		
 command_map = {
     'switch'  : (cmd_switch,   'set RC switch (1-5), 0 disables'),
