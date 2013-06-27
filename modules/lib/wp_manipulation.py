@@ -18,8 +18,8 @@ def readwps(pattern = 'Pattern_1_A_ccw.txt', filepath = r'C:\Documents and Setti
 				for j in range(4):
 					a[j] = float(a[j]) #Convert strings to floats
 			list.append(a) #Return matrix of [type, lat , lon, alt]
-        list = removeloop(list) #Return matrix of [lat , lon, alt]
-        return list
+    list = removeloop(list) #Return matrix of [lat , lon, alt]
+    return list
 
 def removeloop(list):
 #Removes the looping function and any extraneous lines
