@@ -902,7 +902,7 @@ command_map = {
     'disarm'  : (cmd_disarm,   'ArduCopter disarm motors'),
 	'kill'    : (cmd_kill,     'Crashes the plane'),
 	'creset'  : (cmd_ctrl_reset,'Gives radio control back'),
-	'print'   : (cmd_print,    'Print something out for debugging')
+	'print'   : (cmd_print,    'Print something out for debugging'),
     'target'  : (cmd_target,   'Change the target system and component')
     }
 

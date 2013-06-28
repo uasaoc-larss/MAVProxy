@@ -611,7 +611,7 @@ class mavfile(object):
 
     def set_target(self, target_system=1, target_component=0):
         '''Set a new target system and component'''
-        mav.set_target(target_system, target_component)
+        self.mav.set_target(target_system, target_component)
         self.target_system = target_system
         self.target_component = target_component
 
