@@ -11,6 +11,9 @@ mpstate = None
 
 from MAVProxy.modules.lib import live_graph
 
+from MAVProxy.modules.mavproxy_map import GAreader
+#from MAVProxy.modules.mavproxy_map import srtm
+
 class graph_state(object):
     def __init__(self):
         self.timespan = 20

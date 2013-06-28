@@ -30,7 +30,7 @@ class MPStatus(object):
             self.rc_elevator = 0
             self.rc_throttle = 0
             self.rc_rudder   = 0
-        self.gps	 = None
+        self.gps     = None
         self.msgs = {}
         self.msg_count = {}
         self.counters = {'MasterIn' : [], 'MasterOut' : 0, 'FGearIn' : 0, 'FGearOut' : 0, 'Slave' : 0}
@@ -732,6 +732,7 @@ def cmd_module(args):
         modpath = 'MAVProxy.modules.mavproxy_%s' % (modname,)
         try:
             m = import_package(modpath)
+            print("load worked")
             if m in mpstate.modules:
                 raise RuntimeError("module %s already loaded" % (modname,))
             m.init(mpstate)
@@ -815,6 +816,7 @@ def import_package(name):
     """Given a package name like 'foo.bar.quux', imports the package
     and returns the desired module."""
     mod = __import__(name)
+    print("1st line works")
     components = name.split('.')
     for comp in components[1:]:
         mod = getattr(mod, comp)
@@ -832,7 +834,7 @@ def cmd_kill(args):
   mpstate.status.override[2] = 1000
   mpstate.status.override_counter = 0
   send_rc_override()
-	
+    
 def cmd_print(args):
   '''Debugging print'''
   master = mpstate.master()
@@ -840,28 +842,28 @@ def cmd_print(args):
   lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
   print(lat)
   print(lon)
-	
+    
 def cmd_ctrl_reset(args):
   '''Give the rc control back to the controller'''
   mpstate.status.override_counter = 0
   for i in range(8):
     mpstate.status.override[i] = 0
-	
+    
 def cmd_new_wps(args):
   '''Upload a new waypoint pattern and set a goto waypoint. takes [waypoint file, wp number]'''
   if len(args) == 2:
-	load_waypoints(args[0])
-	mpstate.master().waypoint_set_current_send(int(args[1]))
+    load_waypoints(args[0])
+    mpstate.master().waypoint_set_current_send(int(args[1]))
   elif len(args) == 1:
-	load_waypoints(args[0])
-	master = mpstate.master()
-	lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
-	lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
-	alt = mpstate.settings.basealt
-	loc = [lat, lon, alt]
-	new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args[0]))
-	mpstate.master().waypoint_set_current_send(int(new_waypoint)) 
-		
+    load_waypoints(args[0])
+    master = mpstate.master()
+    lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
+    lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
+    alt = mpstate.settings.basealt
+    loc = [lat, lon, alt]
+    new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args[0]))
+    mpstate.master().waypoint_set_current_send(int(new_waypoint)) 
+        
 command_map = {
     'switch'  : (cmd_switch,   'set RC switch (1-5), 0 disables'),
     'rc'      : (cmd_rc,       'override a RC channel value'),
@@ -893,10 +895,10 @@ command_map = {
     'alias'   : (cmd_alias,    'command aliases'),
     'arm'     : (cmd_arm,      'ArduCopter arm motors'),
     'disarm'  : (cmd_disarm,   'ArduCopter disarm motors'),
-	'kill'    : (cmd_kill,     'Crashes the plane'),
-	'cmdreset': (cmd_ctrl_reset,'Gives radio control back'),
-	'print'   : (cmd_print,    'Print something out for debugging'),
-	'upwps'	  : (cmd_new_wps,  'Uploads a new wp pattern and sets a goto wp')
+    'kill'    : (cmd_kill,     'Crashes the plane'),
+    'cmdreset': (cmd_ctrl_reset,'Gives radio control back'),
+    'print'   : (cmd_print,    'Print something out for debugging'),
+    'upwps'   : (cmd_new_wps,  'Uploads a new wp pattern and sets a goto wp')
     }
 
 def process_stdin(line):

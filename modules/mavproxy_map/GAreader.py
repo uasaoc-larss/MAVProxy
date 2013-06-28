@@ -174,13 +174,13 @@ if __name__ == '__main__':
     mappy = ERMap()
     mappy.read_ermapper(os.path.join(os.environ['HOME'], './Documents/Elevation/Canberra/GSNSW_P756demg'))
 
-    #print some header data   
+    # print some header data   
     mappy.printBoundingBox()
 
-    #get a measure of data quality
-    #mappy.getPercentBlank()
+    # get a measure of data quality
+    mappy.getPercentBlank()
 
-    #test the altitude (around Canberra):
+    # test the altitude (around Canberra):
     alt = mappy.getAltitudeAtPoint(-35.274411, 149.097504)
     print "Alt at (-35.274411, 149.097504) is 807m (Google) or " + str(alt)
     alt = mappy.getAltitudeAtPoint(-35.239648, 149.126118)
