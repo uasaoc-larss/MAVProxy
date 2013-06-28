@@ -808,18 +808,6 @@ def cmd_disarm(args):
   '''disarm motors'''
   mpstate.master().arducopter_disarm()
 
-# http://stackoverflow.com/questions/211100/pythons-import-doesnt-work-as-expected
-# has info on why this is necessary.
-
-def import_package(name):
-    """Given a package name like 'foo.bar.quux', imports the package
-    and returns the desired module."""
-    mod = __import__(name)
-    components = name.split('.')
-    for comp in components[1:]:
-        mod = getattr(mod, comp)
-    return mod
-
 # 0 Ailerons -> 1000
 # 1 Elevator -> 1000
 # 2 Throttle -> 1000
@@ -851,6 +839,18 @@ def cmd_target(args):
   '''Change the target component and system'''
   pass
 	
+# http://stackoverflow.com/questions/211100/pythons-import-doesnt-work-as-expected
+# has info on why this is necessary.
+
+def import_package(name):
+    """Given a package name like 'foo.bar.quux', imports the package
+    and returns the desired module."""
+    mod = __import__(name)
+    components = name.split('.')
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
+
 command_map = {
     'switch'  : (cmd_switch,   'set RC switch (1-5), 0 disables'),
     'rc'      : (cmd_rc,       'override a RC channel value'),
