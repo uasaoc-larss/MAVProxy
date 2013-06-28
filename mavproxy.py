@@ -423,7 +423,7 @@ def save_waypoints(filename):
 def cmd_wp(args):
     '''waypoint commands'''
     if len(args) < 1:
-        print("usage: wp <list|update|load|save|set|clear>")
+        print("usage: wp <list|update|load|save|set|validate|clear>")
         return
 
     if args[0] == "load":
@@ -442,6 +442,9 @@ def cmd_wp(args):
         update_waypoints(args[1], wpnum)
     elif args[0] == "list":
         mpstate.status.wp_op = "list"
+        mpstate.master().waypoint_request_list_send()
+    elif args[0] == "validate":
+        mpstate.status.wp_op = "validate"
         mpstate.master().waypoint_request_list_send()
     elif args[0] == "save":
         if len(args) != 2:
@@ -463,7 +466,7 @@ def cmd_wp(args):
     elif args[0] == "clear":
         mpstate.master().waypoint_clear_all_send()
     else:
-        print("Usage: wp <list|load|save|set|show|clear>")
+        print("Usage: wp <list|load|save|set|show|validate|clear>")
 
 def fetch_fence_point(i):
     '''fetch one fence point'''
@@ -1273,6 +1276,13 @@ def master_callback(m, master):
                     print("Saved waypoints to %s" % waytxt)
             elif mpstate.status.wp_op == "save":
                 save_waypoints(mpstate.status.wp_save_filename)
+            elif mpstate.status.wp_op == 'validate':
+                for i in range(mpstate.status.wploader.count()):
+                    w = mpstate.status.wploader.wp(i)
+                    print("%u %u %.10f %.10f %f p1=%.1f p2=%.1f p3=%.1f p4=%.1f cur=%u auto=%u" % (
+                        w.command, w.frame, w.x, w.y, w.z,
+                        w.param1, w.param2, w.param3, w.param4,
+                        w.current, w.autocontinue))
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
