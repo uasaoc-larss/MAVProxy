@@ -444,6 +444,9 @@ def cmd_wp(args):
         mpstate.status.wp_op = "list"
         mpstate.master().waypoint_request_list_send()
     elif args[0] == "validate":
+        if len(args) != 2:
+            print("usage: wp validate <filename>")
+            return
         mpstate.status.wp_op = "validate"
         mpstate.status.current_wp_file = args[1]
         mpstate.master().waypoint_request_list_send()
@@ -1280,12 +1283,13 @@ def master_callback(m, master):
             elif mpstate.status.wp_op == 'validate':
                 for i in range(mpstate.status.wploader.count()):
                     w = mpstate.status.wploader.wp(i)
-                    print("%u %u %.10f %.10f %f p1=%.1f p2=%.1f p3=%.1f p4=%.1f cur=%u auto=%u" % (
+                    print("%u %u %u %u %u %u %u %u %u %u" % (
                         w.frame, w.command, 
                         w.param1, w.param2, w.param3, w.param4,
-                        w.autocontinue, w.x, w.y, w.z))
+                        w.x, w.y, w.z, w.autocontinue))
+                apple = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
                 print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-                print(mpstate.status.current_wp_file)
+                print(apple)
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
