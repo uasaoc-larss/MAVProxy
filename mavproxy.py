@@ -445,6 +445,7 @@ def cmd_wp(args):
         mpstate.master().waypoint_request_list_send()
     elif args[0] == "validate":
         mpstate.status.wp_op = "validate"
+        mpstate.status.current_wp_file = args[1]
         mpstate.master().waypoint_request_list_send()
     elif args[0] == "save":
         if len(args) != 2:
@@ -1280,9 +1281,11 @@ def master_callback(m, master):
                 for i in range(mpstate.status.wploader.count()):
                     w = mpstate.status.wploader.wp(i)
                     print("%u %u %.10f %.10f %f p1=%.1f p2=%.1f p3=%.1f p4=%.1f cur=%u auto=%u" % (
-                        w.command, w.frame, w.x, w.y, w.z,
+                        w.frame, w.command, 
                         w.param1, w.param2, w.param3, w.param4,
-                        w.current, w.autocontinue))
+                        w.autocontinue, w.x, w.y, w.z))
+                print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+                print(mpstate.status.current_wp_file)
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:

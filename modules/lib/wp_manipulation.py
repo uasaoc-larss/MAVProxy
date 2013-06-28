@@ -5,10 +5,24 @@
 
 import mp_util #from MAVProxy
 
+def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
+    '''Imports a waypoint file into Python for upload vaidation'''
+    f = open(filepath + '\\' + pattern, 'r')
+    list = [] #Import waypoint file
+    for line in f:
+        a=line.strip().split() #Remove line end tags
+        if len(a) > 3: #Don't import the first line
+            toremove = [0]*2
+            for i in toremove:
+                a.pop(i) #Remove unnecessary list points
+                for j in range(4):
+                    a[j] = float(a[j]) #Convert strings to floats
+            list.append(a) #Return validation matrix
+    return list
+
 def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
     '''Imports a waypoint file into Python'''
     f = open(filepath + '\\' + pattern, 'r')
-    #f = open(r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy\1Accw.txt', 'r')
     list = [] #Import waypoint file
     for line in f:
         a=line.strip().split() #Remove line end tags
@@ -21,7 +35,7 @@ def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\
             list.append(a) #Return matrix of [type, lat , lon, alt]
     list = removeloop(list) #Return matrix of [lat , lon, alt]
     return list
-
+    
 def removeloop(list): #Takes matrix of [type, lat , lon, alt]
     '''Removes the looping function and any extraneous lines'''
     removed = 0
