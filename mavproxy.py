@@ -1284,7 +1284,8 @@ def master_callback(m, master):
                 wmat = []
                 for i in range(mpstate.status.wploader.count()):
                     w = mpstate.status.wploader.wp(i)
-                    wline = [w.frame, w.command, w.param1, w.param2, w.param3, w.param4, w.x, w.y, w.z, w.autocontinue]
+                    wline = [w.frame, w.command, w.param1, w.param2, w.param3, w.param4, 
+                        round(w.x, 5), round(w.y, 5), round(w.z, 5), w.autocontinue]
                     wmat.append(wline)
                 filemat = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
                 apm_wp_num = len(wmat)
@@ -1300,6 +1301,10 @@ def master_callback(m, master):
                             print("Waypoint #%u . . . check." % (i))
                         else:
                             print("Waypoint #%u failed!" % (i))
+                            print("APM: "),
+                            print(wmat[i])
+                            print("PC: "),
+                            print(filemat[i])
                             failed_wps.append(i)
                     if failed_wps == []:
                         print("Validation successful. %u waypoints have been properly uploaded from %u" % (

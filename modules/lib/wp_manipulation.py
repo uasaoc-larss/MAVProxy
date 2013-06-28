@@ -17,6 +17,7 @@ def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Sett
                 a.pop(i) #Remove unnecessary list points
                 for j in range(10):
                     a[j] = float(a[j]) #Convert strings to floats
+                    a[j] = round(a[j], 5) #Round to 5 decimal points
             list.append(a) #Return validation matrix
     return list
 
