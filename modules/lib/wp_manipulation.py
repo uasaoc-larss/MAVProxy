@@ -22,6 +22,21 @@ def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\
     list = removeloop(list) #Return matrix of [lat , lon, alt]
     return list
 
+def rawread(pattern = '1Accw.txt', filepath = r'C:\Doc uments and Settings\LARSS\My Documents\GitHub\MAVProxy'):
+    f = open(filepath + '\\' + pattern, 'r')
+    list = [] #Import waypoint file
+    for line in f:
+        a=line.strip().split() #Remove line end tags
+        if len(a) > 3: #Don't import the first line
+            toremove = [0]*3+[1]*4 + [4]
+            for i in toremove:
+                a.pop(i) #Remove unnecessary list points
+                for j in range(4):
+                    a[j] = float(a[j]) #Convert strings to floats
+            list.append(a) #Return matrix of [type, lat , lon, alt]
+    list = removeloop(list) #Return matrix of [lat , lon, alt]
+    return list
+    
 def removeloop(list):
 #Removes the looping function and any extraneous lines
 #Takes matrix of [type, lat , lon, alt]
