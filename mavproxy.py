@@ -1281,15 +1281,17 @@ def master_callback(m, master):
             elif mpstate.status.wp_op == "save":
                 save_waypoints(mpstate.status.wp_save_filename)
             elif mpstate.status.wp_op == 'validate':
+                wmat = []
                 for i in range(mpstate.status.wploader.count()):
                     w = mpstate.status.wploader.wp(i)
-                    print("%u %u %u %u %u %u %u %u %u %u" % (
-                        w.frame, w.command, 
-                        w.param1, w.param2, w.param3, w.param4,
-                        w.x, w.y, w.z, w.autocontinue))
-                apple = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
-                print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
-                print(apple)
+                    wline = [w.frame, w.command, w.param1, w.param2, w.param3, w.param4, w.x, w.y, w.z, w.autocontinue]
+                    wmat.append(wline)
+                filemat = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
+                apm_wp_num = len(wmat)
+                pc_wp_num = len(filemat)
+                if apm_wp_num != pc_wp_num:
+                    print("VALIDATION FAILED!!! Expected %u waypoints, autopilot has %u waypoints." % (
+                        pc_wp_num, apm_wp_num))
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
