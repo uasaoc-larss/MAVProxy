@@ -11,7 +11,6 @@ import sys, os, struct, math, time, socket
 import fnmatch, errno, threading
 import serial, Queue, select
 import select
-import wp_manipulation
 
 # allow running without installing
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
@@ -843,8 +842,9 @@ def cmd_print(args):
   master = mpstate.master()
   lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
   lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
-  print(lat)
-  print(lon)
+  head = master.field('VFR_HUD', 'heading', 0)
+  #str_lat = ""
+  print("Lat: "+str(lat)+"\tLon: "+str(lon)+"\tHead: "+str(head))
 	
 def cmd_ctrl_reset(args):
   '''Give the rc control back to the controller'''
