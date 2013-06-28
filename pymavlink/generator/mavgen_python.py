@@ -269,6 +269,10 @@ class MAVLink(object):
                 self.total_receive_errors = 0
                 self.startup_time = time.time()
 
+        def set_target(self, target_system=1, target_component=0):
+            self.target_system = target_system
+            self.target_component = target_component
+
         def set_callback(self, callback, *args, **kwargs):
             self.callback = callback
             self.callback_args = args

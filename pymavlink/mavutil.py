@@ -595,7 +595,6 @@ class mavfile(object):
             if not self.motors_armed():
                 return
 
-
     def field(self, type, field, default=None):
         '''convenient function for returning an arbitrary MAVLink
            field with a default'''
@@ -609,6 +608,12 @@ class mavfile(object):
         if not name in self.params:
             return default
         return self.params[name]
+
+    def set_target(self, target_system=1, target_component=0):
+        '''Set a new target system and component'''
+        mav.set_target(target_system, target_component)
+        self.target_system = target_system
+        self.target_component = target_component
 
 def set_close_on_exec(fd):
     '''set the clone on exec flag on a file descriptor. Ignore exceptions'''

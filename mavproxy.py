@@ -844,6 +844,7 @@ def cmd_target(args):
         if (int(args[0]) < 0 or int(args[0]) > 255):
             print "ERROR: Must be in range 0-255"
             return
+        mpstate.master().set_target(int(args[0]), mpstate.status.target_component)
         mpstate.status.target_system = int(args[0])
     else:
         if (int(args[0]) < 0 or int(args[0]) > 255):
@@ -852,11 +853,10 @@ def cmd_target(args):
         if (int(args[1]) < 0 or int(args[1]) > 255):
             print "ERROR: Must be in range 0-255"
             return
+        mpstate.master().set_target(int(args[0]), int(args[1]))
         mpstate.status.target_system = int(args[0])
         mpstate.status.target_component = int(args[1])
-    #TODO Make this update the target in the other classes (probably the mavlink code first,
-    #  to avoid race conditions)
-	
+
 # http://stackoverflow.com/questions/211100/pythons-import-doesnt-work-as-expected
 # has info on why this is necessary.
 
