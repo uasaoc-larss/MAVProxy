@@ -6,9 +6,9 @@
 import mp_util #from MAVProxy
 
 def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
-#Imports a waypoint file into Python
+'''Imports a waypoint file into Python'''
     f = open(filepath + '\\' + pattern, 'r')
-#    f = open(r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy\1Accw.txt', 'r')
+    #f = open(r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy\1Accw.txt', 'r')
     list = [] #Import waypoint file
     for line in f:
         a=line.strip().split() #Remove line end tags
@@ -22,9 +22,8 @@ def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\
     list = removeloop(list) #Return matrix of [lat , lon, alt]
     return list
 
-def removeloop(list):
-#Removes the looping function and any extraneous lines
-#Takes matrix of [type, lat , lon, alt]
+def removeloop(list): #Takes matrix of [type, lat , lon, alt]
+'''Removes the looping function and any extraneous lines'''
     removed = 0
     for i in range(len(list)):
         if list[i][0] == 177:
@@ -46,9 +45,9 @@ def removeloop(list):
     #Return matrix of [lat , lon, alt]
 
 def closest_wp(loc, list):
-#Takes plane location and wp list in form [lat , lon, alt]
-        dists = [mp_util.gps_distance(list[i][0], list[i][1], loc[0], loc[1]) for i in range(1,len(list))]
-        return dists.index(min(dists))+1
+'''Takes plane location and wp list in form [lat , lon, alt]'''
+    dists = [mp_util.gps_distance(list[i][0], list[i][1], loc[0], loc[1]) for i in range(1,len(list))]
+    return dists.index(min(dists))+1
 
 #if __name__ == '__main__':
 #    L=readwps()

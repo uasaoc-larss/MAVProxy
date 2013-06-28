@@ -361,7 +361,6 @@ def process_waypoint_request(m, master):
         mpstate.console.writeln("Sent all %u waypoints" % mpstate.status.wploader.count())
         wp_upload_success = 1
 
-
 def load_waypoints(filename):
     '''load waypoints from a file'''
     mpstate.status.wploader.target_system = mpstate.status.target_system
@@ -716,6 +715,7 @@ def cmd_watch(args):
     '''watch a mavlink packet pattern'''
     if len(args) == 0:
         mpstate.status.watch = None
+        print("Please enter something to watch... dumbass")
         return
     mpstate.status.watch = args[0]
     print("Watching %s" % mpstate.status.watch)
@@ -876,8 +876,6 @@ def cmd_new_wps(args):
     new_pattern_filename = args[0]
     setnow = 1
     new_pattern(args)
-    
-    
 		
 command_map = {
     'switch'  : (cmd_switch,   'set RC switch (1-5), 0 disables'),
