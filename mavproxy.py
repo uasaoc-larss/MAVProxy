@@ -836,8 +836,26 @@ def cmd_ctrl_reset(args):
     mpstate.status.override[i] = 0
 
 def cmd_target(args):
-  '''Change the target component and system'''
-  pass
+    '''Change the target component and system'''
+    if len(args) < 1 or args[0] == 'list':
+        print "Target list not implemented yet. Specify a target (target <sys> [comp])"
+        return
+    elif len(args) == 1:
+        if (int(args[0]) < 0 or int(args[0]) > 255):
+            print "ERROR: Must be in range 0-255"
+            return
+        mpstate.status.target_system = int(args[0])
+    else:
+        if (int(args[0]) < 0 or int(args[0]) > 255):
+            print "ERROR: Must be in range 0-255"
+            return
+        if (int(args[1]) < 0 or int(args[1]) > 255):
+            print "ERROR: Must be in range 0-255"
+            return
+        mpstate.status.target_system = int(args[0])
+        mpstate.status.target_component = int(args[1])
+    #TODO Make this update the target in the other classes (probably the mavlink code first,
+    #  to avoid race conditions)
 	
 # http://stackoverflow.com/questions/211100/pythons-import-doesnt-work-as-expected
 # has info on why this is necessary.
