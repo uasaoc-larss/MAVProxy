@@ -9,7 +9,12 @@ def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Sett
     '''Imports a waypoint file into Python for upload vaidation'''
     from decimal import *
     getcontext().prec = 7
-    f = open(filepath + '\\' + pattern, 'r')
+    try:
+        f = open(filepath + '\\' + pattern, 'r')
+    except Exception:
+        print('%s is not a valid filename. Better luck next time!' % pattern)
+        return []
+    print('it kept going')
     list = [] #Import waypoint file
     for line in f:
         a=line.strip().split() #Remove line end tags

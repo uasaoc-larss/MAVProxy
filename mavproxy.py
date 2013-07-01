@@ -1272,21 +1272,22 @@ def master_callback(m, master):
             elif mpstate.status.wp_op == "save":
                 save_waypoints(mpstate.status.wp_save_filename)
             elif mpstate.status.wp_op == 'validate':
-                wmat = []
-                for i in range(mpstate.status.wploader.count()):
-                    w = mpstate.status.wploader.wp(i)
-                    from decimal import *
-                    getcontext().prec = 7
-                    wline = [Decimal(w.frame)*1, Decimal(w.command)*1, Decimal(w.param1)*1, Decimal(w.param2)*1,
-                        Decimal(w.param3)*1, Decimal(w.param4)*1, Decimal(w.x)*1, Decimal(w.y)*1, Decimal(w.z)*1,
-                        Decimal(w.autocontinue)*1]
-                    wmat.append(wline)
                 filemat = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
-                failed_wps = wp_manipulation.validate_wps(wmat, filemat, mpstate.status.current_wp_file)
-                if failed_wps != []:
-                    print('Attempting to repair broken waypoints...')
-                    for k in failed_wps:
-                        update_waypoints(mpstate.status.current_wp_file, k)
+                if filemat != []:
+                    wmat = []
+                    for i in range(mpstate.status.wploader.count()):
+                        w = mpstate.status.wploader.wp(i)
+                        from decimal import *
+                        getcontext().prec = 7
+                        wline = [Decimal(w.frame)*1, Decimal(w.command)*1, Decimal(w.param1)*1, Decimal(w.param2)*1,
+                            Decimal(w.param3)*1, Decimal(w.param4)*1, Decimal(w.x)*1, Decimal(w.y)*1, Decimal(w.z)*1,
+                            Decimal(w.autocontinue)*1]
+                        wmat.append(wline)
+                    failed_wps = wp_manipulation.validate_wps(wmat, filemat, mpstate.status.current_wp_file)
+                    if failed_wps != []:
+                        print('Attempting to repair broken waypoints...')
+                        for k in failed_wps:
+                            update_waypoints(mpstate.status.current_wp_file, k)
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
