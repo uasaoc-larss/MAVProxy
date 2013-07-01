@@ -420,7 +420,7 @@ def save_waypoints(filename):
 def cmd_wp(args):
     '''waypoint commands'''
     if len(args) < 1:
-        print("usage: wp <list|load|save|set|clear>")
+        print("usage: wp <list|update|load|save|set|clear>")
         return
 
     if args[0] == "load":
@@ -879,7 +879,7 @@ command_map = {
     'arm'     : (cmd_arm,      'ArduCopter arm motors'),
     'disarm'  : (cmd_disarm,   'ArduCopter disarm motors'),
 	'kill'    : (cmd_kill,     'Crashes the plane'),
-	'creset'  : (cmd_ctrl_reset,'Gives radio control back'),
+	'cmdreset': (cmd_ctrl_reset,'Gives radio control back'),
 	'print'   : (cmd_print,    'Print something out for debugging')
     }
 
