@@ -1150,7 +1150,6 @@ def master_callback(m, master):
         setnow
     except NameError:
         setnow = 0
-
     if getattr(m, '_timestamp', None) is None:
         master.post_message(m)
     mpstate.status.counters['MasterIn'][master.linknum] += 1
@@ -1295,13 +1294,9 @@ def master_callback(m, master):
                 filemat = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
                 failed_wps = wp_manipulation.validate_wps(wmat, filemat, mpstate.status.current_wp_file)
                 if failed_wps != []:
+                    print('Attempting to repair broken waypoints...')
                     for k in failed_wps:
                         update_waypoints(mpstate.status.current_wp_file, k)
-                        print('Attempting to repair waypoint %u' % k)
-                        # if wmat[k] == filemat[k]:
-                            # print('Waypoint %u repaired' % k)
-                        # else:
-                            # print('Waypoint %u repair was unsuccessful' % k)
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
@@ -1309,7 +1304,6 @@ def master_callback(m, master):
         if wp_upload_success == 1:
             if setnow == 1:
                 cmd_set_wps(new_pattern_filename)
-
     elif mtype in ["WAYPOINT_CURRENT", "MISSION_CURRENT"]:
         if m.seq != mpstate.status.last_waypoint:
             mpstate.status.last_waypoint = m.seq

@@ -79,10 +79,10 @@ def validate_wps(wmat, filemat, current_wp_file):
                 print("Waypoint #%u . . . check." % (i))
             else:
                 print("Waypoint #%u . . . failed!" % (i))
-                print("APM: "),
-                print(wmat[i])
-                print("PC: "),
-                print(filemat[i])
+                # print("APM: "),
+                # print(wmat[i])
+                # print("PC: "),
+                # print(filemat[i])
                 failed_wps.append(i)
         if failed_wps == []:
             print("Validation successful. %u waypoints have been properly uploaded from" % 
