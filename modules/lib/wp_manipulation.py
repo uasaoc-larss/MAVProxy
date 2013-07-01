@@ -17,7 +17,7 @@ def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Sett
                 a.pop(i) #Remove unnecessary list points
                 for j in range(10):
                     a[j] = float(a[j]) #Convert strings to floats
-                    a[j] = round(a[j], 5) #Round to 5 decimal points
+                    a[j] = round(a[j], 4) #Round to 5 decimal points
             list.append(a) #Return validation matrix
     return list
 
@@ -64,7 +64,7 @@ def closest_wp(loc, list):
     dists = [mp_util.gps_distance(list[i][0], list[i][1], loc[0], loc[1]) for i in range(1,len(list))]
     return dists.index(min(dists))+1
 
-def validate_wps(wmat, filemat):
+def validate_wps(wmat, filemat, current_wp_file):
     apm_wp_num = len(wmat)
     pc_wp_num = len(filemat)
     if apm_wp_num != pc_wp_num:
@@ -77,19 +77,20 @@ def validate_wps(wmat, filemat):
                 print("Waypoint #%u . . . check." % (i))
             else:
                 print("Waypoint #%u . . . failed!" % (i))
-                print("APM: "),
-                print(wmat[i])
-                print("PC: "),
-                print(filemat[i])
+                # print("APM: "),
+                # print(wmat[i])
+                # print("PC: "),
+                # print(filemat[i])
                 failed_wps.append(i)
         if failed_wps == []:
-            print("Validation successful. %u waypoints have been properly uploaded from %u" % (
-                pc_wp_num, mpstate.status.current_wp_file))
+            print("Validation successful. %u waypoints have been properly uploaded from" % 
+                pc_wp_num),
+            print(current_wp_file)
         else:
             print("VALIDATION FAILED!!! A total of %u waypoints did not pass." % (len(failed_wps)))
             print("Failed waypoints are:"),
             print(", ".join(repr(e) for e in failed_wps))
-    
+    return failed_wps
 #if __name__ == '__main__':
 #    L=readwps()
 #    print L
