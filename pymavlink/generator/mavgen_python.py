@@ -337,8 +337,9 @@ class MAVLink(object):
                     m = self.decode(mbuf)
                     self.total_packets_received += 1
                 # MODIFIED drop the packet if it is not from the source we are listening to <dcp>
+                # Unless the target system is 0 (i.e. we are listening to all) <dcp>
                 # TODO Does dropping it cause it to be barfed raw? <dcp>
-                if m.get_srcSystem() != self.tgtSystem or m.get_srcComponent() != self.tgtComponent:
+                if self.tgtSystem != 0 and (m.get_srcSystem() != self.tgtSystem or m.get_srcComponent() != self.tgtComponent):
                     return None
                 if self.callback:
                     self.callback(m, *self.callback_args, **self.callback_kwargs)
