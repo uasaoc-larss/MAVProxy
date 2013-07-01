@@ -79,6 +79,9 @@ class MPStatus(object):
         self.last_seq = 0
         self.fetch_one = 0
         self.armed = False
+        self.new_pattern_filename = []
+        self.wp_upload_success = False
+        self.wp_setnow = False
 
     def show(self, f, pattern=None):
         '''write status to status.txt'''
@@ -341,8 +344,6 @@ def cmd_fbwa(args):
 
 def process_waypoint_request(m, master):
     '''process a waypoint request from the master'''
-    global wp_upload_success
-    wp_upload_success = 0
     if (not mpstate.status.loading_waypoints or
         time.time() > mpstate.status.loading_waypoint_lasttime + 10.0):
         mpstate.status.loading_waypoints = False
@@ -360,7 +361,7 @@ def process_waypoint_request(m, master):
     if m.seq == mpstate.status.wploader.count() - 1:
         mpstate.status.loading_waypoints = False
         mpstate.console.writeln("Sent all %u waypoints" % mpstate.status.wploader.count())
-        wp_upload_success = 1
+        mpstate.status.wp_upload_success = True
 
 def load_waypoints(filename):
     '''load waypoints from a file'''
@@ -862,13 +863,11 @@ def cmd_ctrl_reset(args):
     mpstate.status.override[i] = 0
 	
 def new_pattern(args):
-    global wp_upload_success
-    wp_upload_success = 0
+    mpstate.status.wp_upload_success = False
     load_waypoints(args[0])
   
 def cmd_set_wps(args):
     '''Upload a new waypoint pattern and set a goto waypoint. takes [waypoint file, wp number]'''
-    global setnow
     master = mpstate.master()
     lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
     lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
@@ -877,13 +876,11 @@ def cmd_set_wps(args):
     new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args))
     mpstate.master().waypoint_set_current_send(int(new_waypoint))
     print 'The optimal waypoint has been set'
-    setnow = 0
+    mpstate.status.wp_setnow = False
     
 def cmd_new_wps(args):
-    global new_pattern_filename
-    global setnow
-    new_pattern_filename = args[0]
-    setnow = 1
+    mpstate.status.new_pattern_filename = args[0]
+    mpstate.status.wp_setnow = True
     new_pattern(args)
 		
 command_map = {
@@ -1142,14 +1139,7 @@ def master_send_callback(m, master):
         mpstate.logqueue.put(str(struct.pack('>Q', usec) + m.get_msgbuf()))
 
 def master_callback(m, master):
-    global new_pattern_filename
     '''process mavlink message m on master, sending any messages to recipients'''
-    global wp_upload_success
-    global setnow
-    try:
-        setnow
-    except NameError:
-        setnow = 0
     if getattr(m, '_timestamp', None) is None:
         master.post_message(m)
     mpstate.status.counters['MasterIn'][master.linknum] += 1
@@ -1301,9 +1291,9 @@ def master_callback(m, master):
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
         process_waypoint_request(m, master)
-        if wp_upload_success == 1:
-            if setnow == 1:
-                cmd_set_wps(new_pattern_filename)
+        if mpstate.status.wp_upload_success == True:
+            if mpstate.status.wp_setnow == True:
+                cmd_set_wps(mpstate.status.new_pattern_filename)
     elif mtype in ["WAYPOINT_CURRENT", "MISSION_CURRENT"]:
         if m.seq != mpstate.status.last_waypoint:
             mpstate.status.last_waypoint = m.seq
