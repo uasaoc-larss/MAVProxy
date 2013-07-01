@@ -70,6 +70,8 @@ def validate_wps(wmat, filemat, current_wp_file):
     apm_wp_num = len(wmat)
     pc_wp_num = len(filemat)
     failed_wps = []
+    print('********************************************************************************')
+    print(' ')
     if apm_wp_num != pc_wp_num:
         print("VALIDATION FAILED!!! Expected %u waypoints, autopilot has %u waypoints." % (
             pc_wp_num, apm_wp_num))       
@@ -92,6 +94,8 @@ def validate_wps(wmat, filemat, current_wp_file):
             print("VALIDATION FAILED!!! A total of %u waypoints did not pass." % (len(failed_wps)))
             print("Failed waypoints are:"),
             print(", ".join(repr(e) for e in failed_wps))
+    print(' ')
+    print('********************************************************************************')
     return failed_wps
     
 #if __name__ == '__main__':
