@@ -1,0 +1,5 @@
+# Source files in these directories are auto-generated
+*.py
+
+# Except this one
+!__init__.py
