@@ -846,6 +846,10 @@ def cmd_ctrl_reset(args):
   mpstate.status.override_counter = 0
   for i in range(8):
     mpstate.status.override[i] = 0
+
+def cmd_target(args):
+  '''Change the target component and system'''
+  pass
 	
 command_map = {
     'switch'  : (cmd_switch,   'set RC switch (1-5), 0 disables'),
@@ -881,6 +885,7 @@ command_map = {
 	'kill'    : (cmd_kill,     'Crashes the plane'),
 	'creset'  : (cmd_ctrl_reset,'Gives radio control back'),
 	'print'   : (cmd_print,    'Print something out for debugging')
+    'target'  : (cmd_target,   'Change the target system and component')
     }
 
 def process_stdin(line):
