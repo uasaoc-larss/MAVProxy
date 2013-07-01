@@ -1293,7 +1293,15 @@ def master_callback(m, master):
                         Decimal(w.autocontinue)*1]
                     wmat.append(wline)
                 filemat = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
-                wp_manipulation.validate_wps(wmat, filemat, mpstate.status.current_wp_file)
+                failed_wps = wp_manipulation.validate_wps(wmat, filemat, mpstate.status.current_wp_file)
+                if failed_wps != []:
+                    for k in failed_wps:
+                        update_waypoints(mpstate.status.current_wp_file, k)
+                        print('Attempting to repair waypoint %u' % k)
+                        # if wmat[k] == filemat[k]:
+                            # print('Waypoint %u repaired' % k)
+                        # else:
+                            # print('Waypoint %u repair was unsuccessful' % k)
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
