@@ -64,6 +64,32 @@ def closest_wp(loc, list):
     dists = [mp_util.gps_distance(list[i][0], list[i][1], loc[0], loc[1]) for i in range(1,len(list))]
     return dists.index(min(dists))+1
 
+def validate_wps(wmat, filemat):
+    apm_wp_num = len(wmat)
+    pc_wp_num = len(filemat)
+    if apm_wp_num != pc_wp_num:
+        print("VALIDATION FAILED!!! Expected %u waypoints, autopilot has %u waypoints." % (
+            pc_wp_num, apm_wp_num))       
+    else:
+        failed_wps = []
+        for i in range(pc_wp_num):
+            if wmat[i] == filemat[i]:
+                print("Waypoint #%u . . . check." % (i))
+            else:
+                print("Waypoint #%u . . . failed!" % (i))
+                print("APM: "),
+                print(wmat[i])
+                print("PC: "),
+                print(filemat[i])
+                failed_wps.append(i)
+        if failed_wps == []:
+            print("Validation successful. %u waypoints have been properly uploaded from %u" % (
+                pc_wp_num, mpstate.status.current_wp_file))
+        else:
+            print("VALIDATION FAILED!!! A total of %u waypoints did not pass." % (len(failed_wps)))
+            print("Failed waypoints are:"),
+            print(", ".join(repr(e) for e in failed_wps))
+    
 #if __name__ == '__main__':
 #    L=readwps()
 #    print L

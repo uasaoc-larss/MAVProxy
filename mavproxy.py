@@ -1288,31 +1288,32 @@ def master_callback(m, master):
                         round(w.x, 5), round(w.y, 5), round(w.z, 5), w.autocontinue]
                     wmat.append(wline)
                 filemat = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
-                apm_wp_num = len(wmat)
-                pc_wp_num = len(filemat)
-                if apm_wp_num != pc_wp_num:
-                    print("VALIDATION FAILED!!! Expected %u waypoints, autopilot has %u waypoints." % (
-                        pc_wp_num, apm_wp_num))
+                wp_manipulation.validate_wps(wmat, filemat)
+                # apm_wp_num = len(wmat)
+                # pc_wp_num = len(filemat)
+                # if apm_wp_num != pc_wp_num:
+                    # print("VALIDATION FAILED!!! Expected %u waypoints, autopilot has %u waypoints." % (
+                        # pc_wp_num, apm_wp_num))
                         
-                else:
-                    failed_wps = []
-                    for i in range(pc_wp_num):
-                        if wmat[i] == filemat[i]:
-                            print("Waypoint #%u . . . check." % (i))
-                        else:
-                            print("Waypoint #%u failed!" % (i))
-                            print("APM: "),
-                            print(wmat[i])
-                            print("PC: "),
-                            print(filemat[i])
-                            failed_wps.append(i)
-                    if failed_wps == []:
-                        print("Validation successful. %u waypoints have been properly uploaded from %u" % (
-                            pc_wp_num, mpstate.status.current_wp_file))
-                    else:
-                        print("VALIDATION FAILED!!! A total of %u waypoints did not pass." % (len(failed_wps)))
-                        print("Failed waypoints are:"),
-                        print(", ".join(repr(e) for e in failed_wps))
+                # else:
+                    # failed_wps = []
+                    # for i in range(pc_wp_num):
+                        # if wmat[i] == filemat[i]:
+                            # print("Waypoint #%u . . . check." % (i))
+                        # else:
+                            # print("Waypoint #%u . . . failed!" % (i))
+                            # print("APM: "),
+                            # print(wmat[i])
+                            # print("PC: "),
+                            # print(filemat[i])
+                            # failed_wps.append(i)
+                    # if failed_wps == []:
+                        # print("Validation successful. %u waypoints have been properly uploaded from %u" % (
+                            # pc_wp_num, mpstate.status.current_wp_file))
+                    # else:
+                        # print("VALIDATION FAILED!!! A total of %u waypoints did not pass." % (len(failed_wps)))
+                        # print("Failed waypoints are:"),
+                        # print(", ".join(repr(e) for e in failed_wps))
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
