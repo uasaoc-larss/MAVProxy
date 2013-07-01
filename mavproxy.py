@@ -19,6 +19,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..
 from MAVProxy.modules.lib import textconsole
 from MAVProxy.modules.lib import mp_settings
 from MAVProxy.modules.lib import wp_manipulation
+from decimal import *
+getcontext().prec = 5
 
 class MPStatus(object):
     '''hold status information about the mavproxy'''
@@ -470,7 +472,7 @@ def cmd_wp(args):
     elif args[0] == "clear":
         mpstate.master().waypoint_clear_all_send()
     else:
-        print("Usage: wp <list|load|save|set|show|validate|clear>")
+        print("Usage: wp <list|update|load|save|set|show|validate|clear>")
 
 def fetch_fence_point(i):
     '''fetch one fence point'''
@@ -1284,10 +1286,11 @@ def master_callback(m, master):
                 wmat = []
                 for i in range(mpstate.status.wploader.count()):
                     w = mpstate.status.wploader.wp(i)
-                    r = 4
-                    wline = [round(w.frame, r), round(w.command, r), round(w.param1, r), round(w.param2, r), 
-                        round(w.param3, r), round(w.param4, r), round(w.x, r), round(w.y, r), round(w.z, r), 
-                        round(w.autocontinue, r)]
+                    from decimal import *
+                    getcontext().prec = 7
+                    wline = [Decimal(w.frame)*1, Decimal(w.command)*1, Decimal(w.param1)*1, Decimal(w.param2)*1,
+                        Decimal(w.param3)*1, Decimal(w.param4)*1, Decimal(w.x)*1, Decimal(w.y)*1, Decimal(w.z)*1,
+                        Decimal(w.autocontinue)*1]
                     wmat.append(wline)
                 filemat = wp_manipulation.validation_readwps(mpstate.status.current_wp_file)
                 wp_manipulation.validate_wps(wmat, filemat, mpstate.status.current_wp_file)

@@ -7,6 +7,8 @@ import mp_util #from MAVProxy
 
 def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
     '''Imports a waypoint file into Python for upload vaidation'''
+    from decimal import *
+    getcontext().prec = 7
     f = open(filepath + '\\' + pattern, 'r')
     list = [] #Import waypoint file
     for line in f:
@@ -16,8 +18,8 @@ def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Sett
             for i in toremove:
                 a.pop(i) #Remove unnecessary list points
                 for j in range(10):
-                    a[j] = float(a[j]) #Convert strings to floats
-                    a[j] = round(a[j], 4) #Round to 5 decimal points
+                    a[j] = Decimal(a[j])*1 #Convert strings to floats
+                    #a[j] = str(a[j]) #Round to 5 decimal points
             list.append(a) #Return validation matrix
     return list
 
@@ -77,10 +79,10 @@ def validate_wps(wmat, filemat, current_wp_file):
                 print("Waypoint #%u . . . check." % (i))
             else:
                 print("Waypoint #%u . . . failed!" % (i))
-                # print("APM: "),
-                # print(wmat[i])
-                # print("PC: "),
-                # print(filemat[i])
+                print("APM: "),
+                print(wmat[i])
+                print("PC: "),
+                print(filemat[i])
                 failed_wps.append(i)
         if failed_wps == []:
             print("Validation successful. %u waypoints have been properly uploaded from" % 
@@ -90,7 +92,7 @@ def validate_wps(wmat, filemat, current_wp_file):
             print("VALIDATION FAILED!!! A total of %u waypoints did not pass." % (len(failed_wps)))
             print("Failed waypoints are:"),
             print(", ".join(repr(e) for e in failed_wps))
-    return failed_wps
+    #return failed_wps
 #if __name__ == '__main__':
 #    L=readwps()
 #    print L
