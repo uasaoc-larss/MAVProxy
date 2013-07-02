@@ -13,6 +13,7 @@ class MasterSelectDialog(wx.Frame):
         self.Show(True)
 
     def init_ui(self):
+        '''Create the widgets'''
         vbox = wx.BoxSizer(wx.VERTICAL)
 
         fgrid = wx.FlexGridSizer(2, 2, 5, 5)
@@ -39,13 +40,20 @@ class MasterSelectDialog(wx.Frame):
 
 class MasterSelect(object):
     def __init__(self):
+        self.items = []
 
     def master_select_init(self):
+        '''Create the GUI'''
         app = wx.App()
         MasterSelectDialog(None)
         app.MainLoop()
 
-    def #TODO
+    def add_item(self, iface, sys_id, comp_id):
+        '''Add a detected interface/id pair to the GUI'''
+        self.items = [(iface, sys_id, comp_id)]
+        #TODO update the item boxes
+
+    #TODO method to poll if an item was selected, or some way of returning selection
 
 if __name__ == '__main__':
     ms = MasterSelect()
