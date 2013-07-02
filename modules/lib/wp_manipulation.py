@@ -14,7 +14,6 @@ def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Sett
     except Exception:
         print('%s is not a valid filename. Better luck next time!' % pattern)
         return []
-    print('it kept going')
     list = [] #Import waypoint file
     for line in f:
         a=line.strip().split() #Remove line end tags
