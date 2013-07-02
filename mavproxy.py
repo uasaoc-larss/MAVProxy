@@ -874,8 +874,9 @@ def cmd_set_wps(args):
     alt = mpstate.settings.basealt
     loc = [lat, lon, alt]
     new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args))
-    mpstate.master().waypoint_set_current_send(int(new_waypoint))
-    print 'The optimal waypoint has been set'
+    if new_waypoint != []:
+        mpstate.master().waypoint_set_current_send(int(new_waypoint))
+        print 'The optimal waypoint has been set'
     mpstate.status.wp_setnow = False
     
 def cmd_new_wps(args):

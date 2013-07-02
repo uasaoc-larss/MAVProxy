@@ -68,6 +68,8 @@ def removeloop(list): #Takes matrix of [type, lat , lon, alt]
 
 def closest_wp(loc, list):
     '''Takes plane location and wp list in form [lat , lon, alt]'''
+    # if list == []:
+        # return []
     dists = [mp_util.gps_distance(list[i][0], list[i][1], loc[0], loc[1]) for i in range(1,len(list))]
     return dists.index(min(dists))+1
 
