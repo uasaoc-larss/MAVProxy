@@ -25,6 +25,7 @@ def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Sett
                     a[j] = Decimal(a[j])*1 #Convert strings to floats
                     #a[j] = str(a[j]) #Round to 5 decimal points
             list.append(a) #Return validation matrix
+    f.close()
     return list
 
 def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
@@ -41,6 +42,7 @@ def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\
                     a[j] = float(a[j]) #Convert strings to floats
             list.append(a) #Return matrix of [type, lat , lon, alt]
     list = removeloop(list) #Return matrix of [lat , lon, alt]
+    f.close()
     return list
     
 def removeloop(list): #Takes matrix of [type, lat , lon, alt]
