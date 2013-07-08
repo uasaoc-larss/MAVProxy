@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import threading, sys, re
+from pymavlink import mavutil
 import wx
 
 class MasterSelectDialog(wx.Frame):
@@ -24,8 +25,8 @@ class MasterSelectDialog(wx.Frame):
         fgrid = wx.FlexGridSizer(2, 2, 5, 5)
         lbl1 = wx.StaticText(self, label="Serial interface")
         lbl2 = wx.StaticText(self, label="Detected systems and components")
-        self.if_list = wx.ListBox(self, -1)
-        self.id_list = wx.ListBox(self, -1)
+        self.if_list = wx.ListBox(self, -1, size=(20, 20))
+        self.id_list = wx.ListBox(self, -1, size=(20, 20))
         self.id_list.Disable()
         fgrid.AddMany([(lbl1), (lbl2), (self.if_list, 1, wx.EXPAND), (self.id_list, 1, wx.EXPAND)])
         fgrid.SetFlexibleDirection(wx.VERTICAL)
@@ -52,18 +53,18 @@ class MasterSelectDialog(wx.Frame):
     def add_item(self, iface, sys_id, comp_id):
         '''Add a new interface/id pair to the lists'''
         if iface in self.items:
-            self.items[iface].append((sys_id, comp_id))
+            self.items[iface].add((sys_id, comp_id))
             if iface == self.if_list.GetStringSelection():
                 self.populate_id_list(self.items[iface])
         else:
-            self.items[iface] = [(sys_id, comp_id)]
+            self.items[iface] = set([(sys_id, comp_id)])
             self.if_list.Insert(iface, 0)
         self.btn_ok.Enable()
 
     def add_iface(self, iface):
         '''Add an interface with no detected systems or components'''
         if iface not in self.items:
-            self.items[iface] = []
+            self.items[iface] = set()
             self.if_list.Insert(iface, 0)
         self.btn_ok.Enable()
 
@@ -97,11 +98,11 @@ class MasterSelect(object):
         t.start()
         sema.acquire()
         for iface in ifaces:
-            self.dialog.add_iface(iface)
+            self.dialog.add_iface(str(iface))
         self.dialog_lock = threading.Lock()
         self.detect_threads = []
         for iface in ifaces:
-            detect_thread = threading.Thread(target=self.auto_detect_on_iface, args=(iface, baud))
+            detect_thread = threading.Thread(target=self.auto_detect_on_iface, args=(str(iface), baud))
             detect_thread.daemon = True
             detect_thread.start()
             self.detect_threads.append(detect_thread)
@@ -152,7 +153,7 @@ class MasterSelect(object):
 
     def wait_for_iface_release(self):
         '''Wait for all the threads to close, meaning they've released their lock on the serial port'''
-        for t in detect_threads:
+        for t in self.detect_threads:
             t.join()
 
 if __name__ == '__main__':
