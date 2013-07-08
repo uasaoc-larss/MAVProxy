@@ -129,8 +129,9 @@ class MasterSelect(object):
             if msgs:
                 for msg in msgs:
                     if msg.get_type() = 'HEARTBEAT':
-                        tgt_sys = msg.get_srcSystem()
-                        tgt_comp = msg.get_srcComponent()
+                        src_sys = msg.get_srcSystem()
+                        src_comp = msg.get_srcComponent()
+                        self.add_item(iface, src_sys, src_comp)
 
     def add_item(self, iface, sys_id, comp_id):
         '''Add a detected interface/id pair to the GUI'''
