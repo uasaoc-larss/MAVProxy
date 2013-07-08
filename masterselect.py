@@ -88,7 +88,7 @@ class MasterSelectDialog(wx.Frame):
         self.Close()
 
 class MasterSelect(object):
-    def __init__(self, ifaces):
+    def __init__(self, ifaces, baud=115200):
         self.selection = None
         self.is_selection_made = False
         self.dialog = None
@@ -96,7 +96,13 @@ class MasterSelect(object):
         t = threading.Thread(target=self.master_select_init, args=(sema,))
         t.start()
         sema.acquire()
-        #TODO create a thread to listen on each interface to autodetect
+        self.dialog_lock = threading.Lock()
+        self.detect_threads = []
+        for iface in ifaces:
+            detect_thread = threading.Thread(target=self.auto_detect_on_iface, args=(iface, baud))
+            detect_thread.daemon = True
+            detect_thread.start()
+            self.detect_threads.append(detect_thread)
 
     def master_select_init(self, sema):
         '''Create the GUI'''
@@ -104,9 +110,33 @@ class MasterSelect(object):
         self.dialog = MasterSelectDialog(self, sema, None)
         app.MainLoop()
 
+    def auto_detect_on_iface(self, iface, baudrate):
+        '''Connect on an interface and listen for heartbeats to detect connected systems'''
+        m = mavutil.mavserial(iface, baud=baudrate, autoreconnect=True,
+                target_system=0, target_component=0)
+        
+        while True:
+            if self.is_selection_made:
+                m.close()
+                break
+            
+            s = None
+            try:
+                s = m.recv()
+            except Exception:
+                continue
+            msgs = m.mav.parse_buffer(s)
+            if msgs:
+                for msg in msgs:
+                    if msg.get_type() = 'HEARTBEAT':
+                        tgt_sys = msg.get_srcSystem()
+                        tgt_comp = msg.get_srcComponent()
+
     def add_item(self, iface, sys_id, comp_id):
         '''Add a detected interface/id pair to the GUI'''
+        self.dialog_lock.acquire()
         self.dialog.add_item(iface, sys_id, comp_id)
+        self.dialog_lock.release()
 
     def on_selection(self, iface, is_closed):
         '''Receive the user selection from the dialog'''
@@ -117,8 +147,13 @@ class MasterSelect(object):
         '''Poll to see if a selection is made. Return False if no, or iface name/none if selected or cancelled.'''
         return self.is_selection_made and self.selection
 
+    def wait_for_iface_release(self):
+        '''Wait for all the threads to close, meaning they've released their lock on the serial port'''
+        for t in detect_threads:
+            t.join()
+
 if __name__ == '__main__':
-    ms = MasterSelect([])
+    ms = MasterSelect(["hello", "hi"], 57600)
     ms.dialog.add_iface("Purple")
     ms.add_item("Red", 1, 1)
     ms.add_item("Red", 2, 2)
