@@ -426,7 +426,7 @@ def save_waypoints(filename):
 def cmd_wp(args):
     '''waypoint commands'''
     if len(args) < 1:
-        print("usage: wp <list|update|load|save|set|validate|clear>")
+        print("usage: wp <list|update|load|save|set|validate|scale|clear>")
         return
 
     if args[0] == "load":
@@ -453,6 +453,16 @@ def cmd_wp(args):
         mpstate.status.wp_op = "validate"
         mpstate.status.current_wp_file = args[1]
         mpstate.master().waypoint_request_list_send()
+    elif args[0] == "scale":
+        if len(args) < 3:
+            print("usage: wp scale <filename> <scale> <lat centerpoint (optional)> <lon centerpoint (optional)> <filepath (optional)>")
+        elif len(args) < 4:
+            newfile = wp_manipulation.waypoint_scale(args[1], args[2])
+            print('Scaled %s times as %s!' % (args[2], newfile))
+        elif len(args) == 5:
+            newfile = wp_manipulation.waypoint_scale(args[1], args[2], args[3], args[4])
+        else:
+            print("usage: wp scale <filename> <scale> <lat centerpoint> <lon centerpoint> <filepath (optional)>")
     elif args[0] == "save":
         if len(args) != 2:
             print("usage: wp save <filename>")
@@ -473,7 +483,7 @@ def cmd_wp(args):
     elif args[0] == "clear":
         mpstate.master().waypoint_clear_all_send()
     else:
-        print("Usage: wp <list|update|load|save|set|show|validate|clear>")
+        print("Usage: wp <list|update|load|save|set|show|validate|scale|clear>")
 
 def fetch_fence_point(i):
     '''fetch one fence point'''

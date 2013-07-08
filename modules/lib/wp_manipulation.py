@@ -5,6 +5,44 @@
 
 import mp_util #from MAVProxy
 
+def waypoint_scale(pattern = 'A.txt', scale = '1', scale_x = 39.333420, scale_y = -86.029472, filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
+    '''Scales a waypoint file based on cruise speed in the lateral direction''' 
+    try:
+        f = open(filepath + '\\' + pattern, 'r')
+    except Exception:
+        print('%s is not a valid filename. Better luck next time!' % pattern)
+        return []
+    list = []
+    scaling = float(scale)
+    for line in f:
+        a=line.strip().split()
+        if len(a)>3:
+            #a[3] = a[3]*scaling
+            lat1 = float(a[8])
+            lon1 = float(a[9])
+            angle = mp_util.gps_bearing(scale_x, scale_y, lat1, lon1)
+            # angle = 360 - angle
+            dist = mp_util.gps_distance(scale_x, scale_y, lat1, lon1)*scaling
+            newlat, newlon = mp_util.gps_newpos(lat1, lon1, angle, dist)
+            from decimal import *
+            getcontext().prec = 8
+            a[8] = str(Decimal(newlat)*1)
+            a[9] = str(Decimal(newlon)*1)
+            list.append(a)
+    newpattern = pattern[0:len(pattern)-4] + '_' + scale + '.txt'
+    make_waypoint_file(list, newpattern)
+    return newpattern
+
+def make_waypoint_file(list, newfile):
+    '''Outputs a waypoint file given the inputted matrix'''
+    if len(list[0]) > 3:
+        list.insert(0, 'QGC WPL 110\n')
+    f = open(newfile, 'w')
+    for i in range(len(list)):
+        if i != 0:
+            list[i] = '\t'.join(e for e in list[i])+'\n'
+        f.write(list[i])
+        
 def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
     '''Imports a waypoint file into Python for upload vaidation'''
     from decimal import *
