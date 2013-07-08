@@ -76,15 +76,12 @@ class MasterSelectDialog(wx.Frame):
     def populate_id_list(self, ids):
         '''Clear the id list and refill it from the provided list'''
         self.id_list.Set(["System " + str(x[0]) + ", Component " + str(x[1]) for x in ids])
-        #self.id_list.SetSelection(0)
 
     def on_exit(self, e):
         self.calling_object.on_selection(None, True)
         self.Close()
 
     def on_select(self, e):
-        #ids = re.findall("\d+", self.id_list.GetStringSelection())
-        #self.calling_object.on_selection(self.if_list.GetStringSelection(), int(ids[0]), int(ids[1]))
         self.calling_object.on_selection(self.if_list.GetStringSelection(), True)
         self.Close()
 
