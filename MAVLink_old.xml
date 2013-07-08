@@ -100,18 +100,43 @@
 	<type>double</type>
 	<node>/orientation/roll-rate-degps</node>
       </chunk> 
+
       <chunk>
 	<name>pitch-rate</name>
 	<type>double</type>
 	<node>/orientation/pitch-rate-degps</node>
       </chunk> 
+
       <chunk>
 	<name>yaw-rate</name>
 	<type>double</type>
 	<node>/orientation/yaw-rate-degps</node>
       </chunk> 
 
-      
+      <chunk>
+	<name>roll-deg</name>
+	<type>double</type>
+	<node>/orientation/roll-deg</node>
+      </chunk>
+
+      <chunk>
+	<name>pitch-deg</name>
+	<type>double</type>
+	<node>/orientation/pitch-deg</node>
+      </chunk>
+
+      <chunk>
+	<name>yaw-deg</name>
+	<type>double</type>
+	<node>/orientation/yaw-deg</node>
+      </chunk>
+
+      <chunk>
+	<name>airspeed-kt</name>
+	<type>double</type>
+	<node>/velocities/airspeed-kt</node>
+      </chunk>
+
     </output>
 
   </generic>

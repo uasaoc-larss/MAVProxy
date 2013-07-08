@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..
 from MAVProxy.modules.lib import textconsole
 from MAVProxy.modules.lib import mp_settings
 from MAVProxy.modules.lib import wp_manipulation
-from decimal import *
-getcontext().prec = 5
+import decimal
+decimal.getcontext().prec = 5
 
 class MPStatus(object):
     '''hold status information about the mavproxy'''
@@ -32,7 +32,7 @@ class MPStatus(object):
             self.rc_elevator = 0
             self.rc_throttle = 0
             self.rc_rudder   = 0
-        self.gps	 = None
+        self.gps     = None
         self.msgs = {}
         self.msg_count = {}
         self.counters = {'MasterIn' : [], 'MasterOut' : 0, 'FGearIn' : 0, 'FGearOut' : 0, 'Slave' : 0}
@@ -856,7 +856,7 @@ def cmd_kill(args):
   mpstate.status.override[2] = 1000
   mpstate.status.override_counter = 0
   send_rc_override()
-	
+    
 def cmd_print(args):
   '''Debugging print'''
   master = mpstate.master()
@@ -867,13 +867,13 @@ def cmd_print(args):
   str_lon = "%.7f " % lon
   str_head = "%d" % head
   print("Lat: "+str_lat+"\tLon: "+str_lon+"\tHead: "+str_head)
-	
+    
 def cmd_ctrl_reset(args):
   '''Give the rc control back to the controller'''
   mpstate.status.override_counter = 0
   for i in range(8):
     mpstate.status.override[i] = 0
-	
+    
 def new_pattern(args):
     mpstate.status.wp_upload_success = False
     load_waypoints(args[0])
@@ -883,7 +883,7 @@ def cmd_set_wps(args):
     master = mpstate.master()
     lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
     lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
-	head = master.field('VFR_HUD', 'heading', 0)
+    head = master.field('VFR_HUD', 'heading', 0)
     alt = mpstate.settings.basealt
     loc = [lat, lon, alt]
     new_waypoint = wp_manipulation.closest_wp(head, loc, wp_manipulation.readwps(args))
@@ -896,7 +896,7 @@ def cmd_new_wps(args):
     mpstate.status.new_pattern_filename = args[0]
     mpstate.status.wp_setnow = True
     new_pattern(args)
-		
+        
 command_map = {
     'switch'  : (cmd_switch,   'set RC switch (1-5), 0 disables'),
     'rc'      : (cmd_rc,       'override a RC channel value'),
@@ -928,10 +928,10 @@ command_map = {
     'alias'   : (cmd_alias,    'command aliases'),
     'arm'     : (cmd_arm,      'ArduCopter arm motors'),
     'disarm'  : (cmd_disarm,   'ArduCopter disarm motors'),
-	'kill'    : (cmd_kill,     'Crashes the plane'),
-	'cmdreset': (cmd_ctrl_reset,'Gives radio control back'),
-	'print'   : (cmd_print,    'Print something out for debugging'),
-	'upwps'	  : (cmd_new_wps,  'Uploads a new wp pattern and sets a goto wp'),
+    'kill'    : (cmd_kill,     'Crashes the plane'),
+    'cmdreset': (cmd_ctrl_reset,'Gives radio control back'),
+    'print'   : (cmd_print,    'Print something out for debugging'),
+    'upwps'   : (cmd_new_wps,  'Uploads a new wp pattern and sets a goto wp'),
     'setwp'  : (cmd_set_wps,  'Sets the best waypoint as the goto wp')
     }
 
@@ -1291,11 +1291,10 @@ def master_callback(m, master):
                     wmat = []
                     for i in range(mpstate.status.wploader.count()):
                         w = mpstate.status.wploader.wp(i)
-                        from decimal import *
-                        getcontext().prec = 7
-                        wline = [Decimal(w.frame)*1, Decimal(w.command)*1, Decimal(w.param1)*1, Decimal(w.param2)*1,
-                            Decimal(w.param3)*1, Decimal(w.param4)*1, Decimal(w.x)*1, Decimal(w.y)*1, Decimal(w.z)*1,
-                            Decimal(w.autocontinue)*1]
+                        decimal.getcontext().prec = 7
+                        wline = [decimal.Decimal(w.frame)*1, decimal.Decimal(w.command)*1, decimal.Decimal(w.param1)*1, decimal.Decimal(w.param2)*1,
+                            decimal.Decimal(w.param3)*1, decimal.Decimal(w.param4)*1, decimal.Decimal(w.x)*1, decimal.Decimal(w.y)*1, decimal.Decimal(w.z)*1,
+                            decimal.Decimal(w.autocontinue)*1]
                         wmat.append(wline)
                     failed_wps = wp_manipulation.validate_wps(wmat, filemat, mpstate.status.current_wp_file)
                     if failed_wps != []:

@@ -4,6 +4,7 @@
 # Last update 6/26/13
 
 import mp_util #from MAVProxy
+import decimal
 
 def waypoint_scale(pattern = 'A.txt', scale = '1', scale_x = 39.333420, scale_y = -86.029472, filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
     '''Scales a waypoint file based on cruise speed in the lateral direction''' 
@@ -24,10 +25,10 @@ def waypoint_scale(pattern = 'A.txt', scale = '1', scale_x = 39.333420, scale_y 
             # angle = 360 - angle
             dist = mp_util.gps_distance(scale_x, scale_y, lat1, lon1)*scaling
             newlat, newlon = mp_util.gps_newpos(lat1, lon1, angle, dist)
-            from decimal import *
-            getcontext().prec = 8
-            a[8] = str(Decimal(newlat)*1)
-            a[9] = str(Decimal(newlon)*1)
+            #from decimal import *
+            decimal.getcontext().prec = 8
+            a[8] = str(decimal.Decimal(newlat)*1)
+            a[9] = str(decimal.Decimal(newlon)*1)
             list.append(a)
     newpattern = pattern[0:len(pattern)-4] + '_' + scale + '.txt'
     make_waypoint_file(list, newpattern)
@@ -46,7 +47,7 @@ def make_waypoint_file(list, newfile):
 def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
     '''Imports a waypoint file into Python for upload vaidation'''
     from decimal import *
-    getcontext().prec = 7
+    decimal.getcontext().prec = 7
     try:
         f = open(filepath + '\\' + pattern, 'r')
     except Exception:
@@ -107,16 +108,16 @@ def removeloop(list): #Takes matrix of [type, lat , lon, alt]
 
 def closest_wp(heading, loc, list):
     '''Takes plane location and wp list in form [lat , lon, alt]'''
-	head = heading
+    head = heading
     dists = [0]*(len(gpslist)-1)
     heads = [0]*(len(gpslist)-1)
-	result = [0]*(len(list)-1)
+    result = [0]*(len(list)-1)
     param = [[0]*(len(gpslist)-1) for i in range(3)]
-	for i in range(1,len(list)):
+    for i in range(1,len(list)):
         dists[i-1] = gps_distance(list[i][0], list[i][1], loc[0], loc[1])
         param[0][i-1] = dists[i-1] #delta
         heads[i-1] = gps_bearing(loc[0], loc[1], list[i][0], list[i][1])
-	for i in range(1,len(list)):
+    for i in range(1,len(list)):
         x = abs(head-heads[i-1])
         if x > 180:
             x = 360 - x
@@ -132,8 +133,8 @@ def closest_wp(heading, loc, list):
                 x = 360 - x
             param[2][i-1] = x #beta
     a = 1/min(dists)
-	b = 1.9
-	c = 0.9
+    b = 1.9
+    c = 0.9
     for i in range(0,len(list)-1):
         result[i] = param[0][i]*a + math.sin(param[1][i]*math.pi/360)*b + math.sin(param[2][i]*math.pi/360)*c
     min_index = result.index(min(result))
