@@ -128,7 +128,7 @@ class MasterSelect(object):
             msgs = m.mav.parse_buffer(s)
             if msgs:
                 for msg in msgs:
-                    if msg.get_type() = 'HEARTBEAT':
+                    if msg.get_type() == 'HEARTBEAT':
                         src_sys = msg.get_srcSystem()
                         src_comp = msg.get_srcComponent()
                         self.add_item(iface, src_sys, src_comp)
