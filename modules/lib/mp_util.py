@@ -39,7 +39,6 @@ def gps_bearing(lat1, lon1, lat2, lon2):
 		bearing += 360.0
 	return bearing
 
-
 def wrap_valid_longitude(lon):
   ''' wrap a longitude value around to always have a value in the range
       [-180, +180) i.e 0 => 0, 1 => 1, -1 => -1, 181 => -179, -181 => 179
