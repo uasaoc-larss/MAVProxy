@@ -58,15 +58,23 @@ class MasterSelectDialog(wx.Frame):
                 self.populate_id_list(self.items[iface])
         else:
             self.items[iface] = set([(sys_id, comp_id)])
+            wx.MutexGuiEnter()
             self.if_list.Insert(iface, 0)
+            wx.MutexGuiLeave()
+        wx.MutexGuiEnter()
         self.btn_ok.Enable()
+        wx.MutexGuiLeave()
 
     def add_iface(self, iface):
         '''Add an interface with no detected systems or components'''
         if iface not in self.items:
             self.items[iface] = set()
+            wx.MutexGuiEnter()
             self.if_list.Insert(iface, 0)
+            wx.MutexGuiLeave()
+        wx.MutexGuiEnter()
         self.btn_ok.Enable()
+        wx.MutexGuiLeave()
 
     def on_iface_selected(self, e):
         '''Show the appropriate sys/comps when an interface is selected'''
@@ -75,7 +83,9 @@ class MasterSelectDialog(wx.Frame):
     
     def populate_id_list(self, ids):
         '''Clear the id list and refill it from the provided list'''
+        wx.MutexGuiEnter()
         self.id_list.Set(["System " + str(x[0]) + ", Component " + str(x[1]) for x in ids])
+        wx.MutexGuiLeave()
 
     def on_exit(self, e):
         self.calling_object.on_selection(None, True)
