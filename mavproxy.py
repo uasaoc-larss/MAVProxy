@@ -11,7 +11,7 @@ import sys, os, struct, math, time, socket
 import fnmatch, errno, threading
 import serial, Queue, select
 
-import select
+import masterselect
 
 # allow running without installing
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
@@ -1729,21 +1729,35 @@ if __name__ == '__main__':
 
     if not opts.master:
         serial_list = mavutil.auto_detect_serial(preferred_list=['*FTDI*',"*Arduino_Mega_2560*", "*3D_Robotics*", "*USB_to_UART*"])
-        if len(serial_list) == 1:
-            opts.master = [serial_list[0].device]
-        else:
-            print('''
-Please choose a MAVLink master with --master
-For example:
-    --master=com14
-    --master=/dev/ttyUSB0
-    --master=127.0.0.1:14550
+        ms = masterselect.MasterSelect(serial_list, opts.baudrate)
+        selection = ms.get_selection()
+        while selection == False:
+            time.sleep(.1)
+            selection = ms.get_selection()
 
-Auto-detected serial ports are:
-''')
-            for port in serial_list:
-                print("%s" % port)
-            sys.exit(1)
+        if selection == None:
+            #Dialog was cancelled
+            sys.exit(0)
+        #Make sure serial ports are free before we continue
+        ms.wait_for_iface_release()
+
+        opts.master = [selection]
+        #TODO remove the commented out stuff after the master select dialog works
+        #if len(serial_list) == 1:
+        #    opts.master = [serial_list[0].device]
+        #else:
+        #    print('''
+#Please choose a MAVLink master with --master
+#For example:
+#    --master=com14
+#    --master=/dev/ttyUSB0
+#    --master=127.0.0.1:14550
+#
+#Auto-detected serial ports are:
+#''')
+        #    for port in serial_list:
+        #        print("%s" % port)
+        #    sys.exit(1)
 
     # container for status information
     mpstate.status.target_system = opts.TARGET_SYSTEM
