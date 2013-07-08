@@ -96,6 +96,8 @@ class MasterSelect(object):
         t = threading.Thread(target=self.master_select_init, args=(sema,))
         t.start()
         sema.acquire()
+        for iface in ifaces:
+            self.dialog.add_iface(iface)
         self.dialog_lock = threading.Lock()
         self.detect_threads = []
         for iface in ifaces:
