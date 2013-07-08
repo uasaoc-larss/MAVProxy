@@ -44,11 +44,40 @@ def removeloop(list): #Takes matrix of [type, lat , lon, alt]
     return list
     #Return matrix of [lat , lon, alt]
 
-def closest_wp(loc, list):
+def closest_wp(heading, loc, list):
     '''Takes plane location and wp list in form [lat , lon, alt]'''
-    dists = [mp_util.gps_distance(list[i][0], list[i][1], loc[0], loc[1]) for i in range(1,len(list))]
-    return dists.index(min(dists))+1
-
+	head = heading
+    dists = [0]*(len(gpslist)-1)
+    heads = [0]*(len(gpslist)-1)
+	result = [0]*(len(list)-1)
+    param = [[0]*(len(gpslist)-1) for i in range(3)]
+	for i in range(1,len(list)):
+        dists[i-1] = gps_distance(list[i][0], list[i][1], loc[0], loc[1])
+        param[0][i-1] = dists[i-1] #delta
+        heads[i-1] = gps_bearing(loc[0], loc[1], list[i][0], list[i][1])
+	for i in range(1,len(list)):
+        x = abs(head-heads[i-1])
+        if x > 180:
+            x = 360 - x
+        param[1][i-1] = x #alpha
+        if i == len(list)-1:
+            x = abs(gps_bearing(list[i][0], list[i][1], list[0][0], list[0][1])-heads[i-1])
+            if x > 180:
+                x = 360 - x
+            param[2][i-1] = x #beta
+        else:
+            x = abs(gps_bearing(list[i][0], list[i][1], list[i+1][0], list[i+1][1])-heads[i-1])
+            if x > 180:
+                x = 360 - x
+            param[2][i-1] = x #beta
+    a = 1/min(dists)
+	b = 1.9
+	c = 0.9
+    for i in range(0,len(list)-1):
+        result[i] = param[0][i]*a + math.sin(param[1][i]*math.pi/360)*b + math.sin(param[2][i]*math.pi/360)*c
+    min_index = result.index(min(result))
+    return min_index+1
+    
 #if __name__ == '__main__':
 #    L=readwps()
 #    print L

@@ -843,8 +843,10 @@ def cmd_print(args):
   lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
   lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
   head = master.field('VFR_HUD', 'heading', 0)
-  #str_lat = ""
-  print("Lat: "+str(lat)+"\tLon: "+str(lon)+"\tHead: "+str(head))
+  str_lat = "%.7f " % lat
+  str_lon = "%.7f " % lon
+  str_head = "%d" % head
+  print("Lat: "+str_lat+"\tLon: "+str_lon+"\tHead: "+str_head)
 	
 def cmd_ctrl_reset(args):
   '''Give the rc control back to the controller'''
@@ -863,9 +865,10 @@ def cmd_set_wps(args):
     master = mpstate.master()
     lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
     lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
+	head = master.field('VFR_HUD', 'heading', 0)
     alt = mpstate.settings.basealt
     loc = [lat, lon, alt]
-    new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args))
+    new_waypoint = wp_manipulation.closest_wp(head, loc, wp_manipulation.readwps(args))
     mpstate.master().waypoint_set_current_send(int(new_waypoint))
     print 'The optimal waypoint has been set'
     setnow = 0
