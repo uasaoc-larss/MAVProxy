@@ -54,7 +54,10 @@ class MasterSelectDialog(wx.Frame):
         '''Add a new interface/id pair to the lists'''
         if iface in self.items:
             self.items[iface].add((sys_id, comp_id))
-            if iface == self.if_list.GetStringSelection():
+            wx.MutexGuiEnter()
+            selected_iface = self.if_list.GetStringSelection()
+            wx.MutexGuiLeave()
+            if iface == selected_iface:
                 self.populate_id_list(self.items[iface])
         else:
             self.items[iface] = set([(sys_id, comp_id)])
