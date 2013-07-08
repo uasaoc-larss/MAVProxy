@@ -105,7 +105,6 @@ def removeloop(list): #Takes matrix of [type, lat , lon, alt]
     return list
     #Return matrix of [lat , lon, alt]
 
-<<<<<<< HEAD
 def closest_wp(heading, loc, list):
     '''Takes plane location and wp list in form [lat , lon, alt]'''
 	head = heading
@@ -139,13 +138,6 @@ def closest_wp(heading, loc, list):
         result[i] = param[0][i]*a + math.sin(param[1][i]*math.pi/360)*b + math.sin(param[2][i]*math.pi/360)*c
     min_index = result.index(min(result))
     return min_index+1
-=======
-def closest_wp(loc, list):
-    '''Takes plane location and wp list in form [lat , lon, alt]'''
-    # if list == []:
-        # return []
-    dists = [mp_util.gps_distance(list[i][0], list[i][1], loc[0], loc[1]) for i in range(1,len(list))]
-    return dists.index(min(dists))+1
 
 def validate_wps(wmat, filemat, current_wp_file):
     apm_wp_num = len(wmat)
@@ -178,7 +170,6 @@ def validate_wps(wmat, filemat, current_wp_file):
     print(' ')
     print('********************************************************************************')
     return failed_wps
->>>>>>> origin/Validation-command
     
 #if __name__ == '__main__':
 #    L=readwps()

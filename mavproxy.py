@@ -886,18 +886,11 @@ def cmd_set_wps(args):
 	head = master.field('VFR_HUD', 'heading', 0)
     alt = mpstate.settings.basealt
     loc = [lat, lon, alt]
-<<<<<<< HEAD
     new_waypoint = wp_manipulation.closest_wp(head, loc, wp_manipulation.readwps(args))
-    mpstate.master().waypoint_set_current_send(int(new_waypoint))
-    print 'The optimal waypoint has been set'
-    setnow = 0
-=======
-    new_waypoint = wp_manipulation.closest_wp(loc, wp_manipulation.readwps(args))
     if new_waypoint != []:
         mpstate.master().waypoint_set_current_send(int(new_waypoint))
         print 'The optimal waypoint has been set'
     mpstate.status.wp_setnow = False
->>>>>>> origin/Validation-command
     
 def cmd_new_wps(args):
     mpstate.status.new_pattern_filename = args[0]
