@@ -5,10 +5,70 @@
 
 import mp_util #from MAVProxy
 
+def waypoint_scale(pattern = 'A.txt', scale = '1', scale_x = 39.333420, scale_y = -86.029472, filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
+    '''Scales a waypoint file based on cruise speed in the lateral direction''' 
+    try:
+        f = open(filepath + '\\' + pattern, 'r')
+    except Exception:
+        print('%s is not a valid filename. Better luck next time!' % pattern)
+        return []
+    list = []
+    scaling = float(scale)
+    for line in f:
+        a=line.strip().split()
+        if len(a)>3:
+            #a[3] = a[3]*scaling
+            lat1 = float(a[8])
+            lon1 = float(a[9])
+            angle = mp_util.gps_bearing(scale_x, scale_y, lat1, lon1)
+            # angle = 360 - angle
+            dist = mp_util.gps_distance(scale_x, scale_y, lat1, lon1)*scaling
+            newlat, newlon = mp_util.gps_newpos(lat1, lon1, angle, dist)
+            from decimal import *
+            getcontext().prec = 8
+            a[8] = str(Decimal(newlat)*1)
+            a[9] = str(Decimal(newlon)*1)
+            list.append(a)
+    newpattern = pattern[0:len(pattern)-4] + '_' + scale + '.txt'
+    make_waypoint_file(list, newpattern)
+    return newpattern
+
+def make_waypoint_file(list, newfile):
+    '''Outputs a waypoint file given the inputted matrix'''
+    if len(list[0]) > 3:
+        list.insert(0, 'QGC WPL 110\n')
+    f = open(newfile, 'w')
+    for i in range(len(list)):
+        if i != 0:
+            list[i] = '\t'.join(e for e in list[i])+'\n'
+        f.write(list[i])
+        
+def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
+    '''Imports a waypoint file into Python for upload vaidation'''
+    from decimal import *
+    getcontext().prec = 7
+    try:
+        f = open(filepath + '\\' + pattern, 'r')
+    except Exception:
+        print('%s is not a valid filename. Better luck next time!' % pattern)
+        return []
+    list = [] #Import waypoint file
+    for line in f:
+        a=line.strip().split() #Remove line end tags
+        if len(a) > 3: #Don't import the first line
+            toremove = [0]*2
+            for i in toremove:
+                a.pop(i) #Remove unnecessary list points
+                for j in range(10):
+                    a[j] = Decimal(a[j])*1 #Convert strings to floats
+                    #a[j] = str(a[j]) #Round to 5 decimal points
+            list.append(a) #Return validation matrix
+    f.close()
+    return list
+
 def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
     '''Imports a waypoint file into Python'''
     f = open(filepath + '\\' + pattern, 'r')
-    #f = open(r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy\1Accw.txt', 'r')
     list = [] #Import waypoint file
     for line in f:
         a=line.strip().split() #Remove line end tags
@@ -20,8 +80,9 @@ def readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\
                     a[j] = float(a[j]) #Convert strings to floats
             list.append(a) #Return matrix of [type, lat , lon, alt]
     list = removeloop(list) #Return matrix of [lat , lon, alt]
+    f.close()
     return list
-
+    
 def removeloop(list): #Takes matrix of [type, lat , lon, alt]
     '''Removes the looping function and any extraneous lines'''
     removed = 0
@@ -44,6 +105,7 @@ def removeloop(list): #Takes matrix of [type, lat , lon, alt]
     return list
     #Return matrix of [lat , lon, alt]
 
+<<<<<<< HEAD
 def closest_wp(heading, loc, list):
     '''Takes plane location and wp list in form [lat , lon, alt]'''
 	head = heading
@@ -77,6 +139,46 @@ def closest_wp(heading, loc, list):
         result[i] = param[0][i]*a + math.sin(param[1][i]*math.pi/360)*b + math.sin(param[2][i]*math.pi/360)*c
     min_index = result.index(min(result))
     return min_index+1
+=======
+def closest_wp(loc, list):
+    '''Takes plane location and wp list in form [lat , lon, alt]'''
+    # if list == []:
+        # return []
+    dists = [mp_util.gps_distance(list[i][0], list[i][1], loc[0], loc[1]) for i in range(1,len(list))]
+    return dists.index(min(dists))+1
+
+def validate_wps(wmat, filemat, current_wp_file):
+    apm_wp_num = len(wmat)
+    pc_wp_num = len(filemat)
+    failed_wps = []
+    print('********************************************************************************')
+    print(' ')
+    if apm_wp_num != pc_wp_num:
+        print("VALIDATION FAILED!!! Expected %u waypoints, autopilot has %u waypoints." % (
+            pc_wp_num, apm_wp_num))       
+    else:
+        for i in range(pc_wp_num):
+            if wmat[i] == filemat[i]:
+                print("Waypoint #%u . . . check." % (i))
+            else:
+                print("Waypoint #%u . . . failed!" % (i))
+                # print("APM: "),
+                # print(wmat[i])
+                # print("PC: "),
+                # print(filemat[i])
+                failed_wps.append(i)
+        if failed_wps == []:
+            print("Validation successful. %u waypoints have been properly uploaded from" % 
+                pc_wp_num),
+            print(current_wp_file)
+        else:
+            print("VALIDATION FAILED!!! A total of %u waypoints did not pass." % (len(failed_wps)))
+            print("Failed waypoints are:"),
+            print(", ".join(repr(e) for e in failed_wps))
+    print(' ')
+    print('********************************************************************************')
+    return failed_wps
+>>>>>>> origin/Validation-command
     
 #if __name__ == '__main__':
 #    L=readwps()
