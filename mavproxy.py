@@ -1675,7 +1675,7 @@ if __name__ == '__main__':
     #TODO Make it handle more than one target system
     #TODO Also, figure out why it ignores target-system
     parser.add_option("--target-system", dest='TARGET_SYSTEM', type='int',
-                      default=1, help='MAVLink target master system')
+                      default=0, help='MAVLink target master system')
     parser.add_option("--target-component", dest='TARGET_COMPONENT', type='int',
                       default=1, help='MAVLink target master component')
     parser.add_option("--logfile", dest="logfile", help="MAVLink master logfile",
