@@ -54,13 +54,12 @@ def set_dialect(dialect):
     '''
     global mavlink, current_dialect
     from generator import mavparse
-    if mavlink is None or mavlink.WIRE_PROTOCOL_VERSION == "1.0" or not 'MAVLINK09' in os.environ:
+    if (mavlink is None or mavlink.WIRE_PROTOCOL_VERSION == "1.0") and not 'MAVLINK09' in os.environ:
         wire_protocol = mavparse.PROTOCOL_1_0
         modname = "pymavlink.dialects.v10." + dialect
     else:
         wire_protocol = mavparse.PROTOCOL_0_9
-        modname = "pymavlink.dialects.v09." + dialect
-
+        modname = "pymavlink.dialects.v09." + dialect   
     try:
         mod = __import__(modname)
     except Exception:
@@ -577,7 +576,8 @@ class mavfile(object):
         if not 'HEARTBEAT' in self.messages:
             return False
         m = self.messages['HEARTBEAT']
-        return (m.base_mode & mavlink.MAV_MODE_FLAG_SAFETY_ARMED) != 0
+        #return (m.base_mode & mavlink.MAV_MODE_FLAG_SAFETY_ARMED) != 0 #Ben
+        return True #Ben
 
     def motors_armed_wait(self):
         '''wait for motors to be armed'''

@@ -1371,8 +1371,8 @@ def master_callback(m, master):
         mpstate.status.last_fence_breach = m.breach_time
         mpstate.status.last_fence_status = m.breach_status
 
-    elif mtype == "GLOBAL_POSITION_INT":
-        report_altitude(m.relative_alt*0.001)
+    #elif mtype == "GLOBAL_POSITION_INT": #Ben
+        #report_altitude(m.relative_alt*0.001) #Ben
 
     elif mtype == "BAD_DATA":
         if mpstate.settings.shownoise and mavutil.all_printable(m.data):
