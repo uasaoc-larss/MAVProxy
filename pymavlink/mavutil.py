@@ -576,7 +576,8 @@ class mavfile(object):
         if not 'HEARTBEAT' in self.messages:
             return False
         m = self.messages['HEARTBEAT']
-        #return (m.base_mode & mavlink.MAV_MODE_FLAG_SAFETY_ARMED) != 0 #Ben
+        if os.environ['MAVLINK09'] != '1':
+            return (m.base_mode & mavlink.MAV_MODE_FLAG_SAFETY_ARMED) != 0 #Ben
         return True #Ben
 
     def motors_armed_wait(self):
