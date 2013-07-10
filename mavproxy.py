@@ -1772,7 +1772,7 @@ if __name__ == '__main__':
         action='append',
         default=[],
         help='Load the specified module. Can be used multiple times, or with a comma separated list')
-    parser.add_option("--mav09", action='store_true', default=False, help="Use MAVLink protocol 0.9")
+    parser.add_option("--mav09", action='store_true', default=True, help="Use MAVLink protocol 0.9")
     parser.add_option("--auto-protocol", action='store_true', default=False, help="Auto detect MAVLink protocol version")
     parser.add_option("--nowait", action='store_true', default=False, help="don't wait for HEARTBEAT on startup")
     parser.add_option("--continue", dest='continue_mode', action='store_true', default=False, help="continue logs")

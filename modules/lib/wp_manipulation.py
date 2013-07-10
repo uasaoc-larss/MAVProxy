@@ -46,7 +46,6 @@ def make_waypoint_file(list, newfile):
         
 def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
     '''Imports a waypoint file into Python for upload vaidation'''
-    from decimal import *
     decimal.getcontext().prec = 7
     try:
         f = open(filepath + '\\' + pattern, 'r')
@@ -61,7 +60,7 @@ def validation_readwps(pattern = '1Accw.txt', filepath = r'C:\Documents and Sett
             for i in toremove:
                 a.pop(i) #Remove unnecessary list points
                 for j in range(10):
-                    a[j] = Decimal(a[j])*1 #Convert strings to floats
+                    a[j] = decimal.Decimal(a[j])*1 #Convert strings to floats
                     #a[j] = str(a[j]) #Round to 5 decimal points
             list.append(a) #Return validation matrix
     f.close()
