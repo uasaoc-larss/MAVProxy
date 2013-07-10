@@ -1303,7 +1303,8 @@ def master_callback(m, master):
         mpstate.status.last_fence_status = m.breach_status
 
     elif mtype == "GLOBAL_POSITION_INT":
-        report_altitude(m.relative_alt*0.001)
+        if 'MAVLINK09' not in os.environ or os.environ['MAVLINK09'] != '1':
+            report_altitude(m.relative_alt*0.001)
 
     elif mtype == "BAD_DATA":
         if mpstate.settings.shownoise and mavutil.all_printable(m.data):
