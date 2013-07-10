@@ -3,6 +3,7 @@ mavproxy
 *.o
 *.pyc
 *.log
+*.bat
 camera/
 build/
 dist/
