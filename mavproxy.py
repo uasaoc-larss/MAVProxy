@@ -761,8 +761,9 @@ def cmd_module(args):
             m.init(mpstate)
             mpstate.modules.append(m)
             print("Loaded module %s" % (modname,))
-        except Exception, msg:
-            print("Unable to load module %s: %s" % (modname, msg))
+        except Exception as e:
+            print("Unable to load module %s: %s" % (modname, e))
+            print sys.exc_info()[2].tb_lineno
     elif args[0] == "reload":
         if len(args) < 2:
             print("usage: module reload <name>")
@@ -839,6 +840,7 @@ def import_package(name):
     """Given a package name like 'foo.bar.quux', imports the package
     and returns the desired module."""
     mod = __import__(name)
+    print("Am I a bitch?")
     components = name.split('.')
     for comp in components[1:]:
         mod = getattr(mod, comp)
@@ -1186,7 +1188,7 @@ def master_callback(m, master):
                       'NAV_CONTROLLER_OUTPUT' ]:
             return
 
-    if mtype == 'HEARTBEAT':
+    if mtype == 'HEARTBEAT' and mpstate.status.target_system != 255:
         if (mpstate.status.target_system != m.get_srcSystem() or
             mpstate.status.target_component != m.get_srcComponent()):
             mpstate.status.target_system = m.get_srcSystem()
