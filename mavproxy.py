@@ -763,7 +763,6 @@ def cmd_module(args):
             print("Loaded module %s" % (modname,))
         except Exception as e:
             print("Unable to load module %s: %s" % (modname, e))
-            print sys.exc_info()[2].tb_lineno
     elif args[0] == "reload":
         if len(args) < 2:
             print("usage: module reload <name>")
@@ -840,7 +839,6 @@ def import_package(name):
     """Given a package name like 'foo.bar.quux', imports the package
     and returns the desired module."""
     mod = __import__(name)
-    print("Am I a bitch?")
     components = name.split('.')
     for comp in components[1:]:
         mod = getattr(mod, comp)
