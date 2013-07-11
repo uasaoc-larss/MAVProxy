@@ -1186,12 +1186,12 @@ def master_callback(m, master):
                       'NAV_CONTROLLER_OUTPUT' ]:
             return
 
-    if mtype == 'HEARTBEAT' and mpstate.status.target_system != 255:
+    if mtype == 'HEARTBEAT':# and mpstate.status.target_system != 255:
         if (mpstate.status.target_system != m.get_srcSystem() or
             mpstate.status.target_component != m.get_srcComponent()):
             mpstate.status.target_system = m.get_srcSystem()
             mpstate.status.target_component = m.get_srcComponent()
-            say("online system %u component %u" % (mpstate.status.target_system, mpstate.status.target_component),'message')
+            #say("online system %u component %u" % (mpstate.status.target_system, mpstate.status.target_component),'message') #Ben
             if len(mpstate.mav_param_set) == 0 or len(mpstate.mav_param_set) != mpstate.mav_param_count:
                 master.param_fetch_all()
 
