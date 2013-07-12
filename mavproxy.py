@@ -114,7 +114,7 @@ class MPState(object):
         self.settings = mp_settings.MPSettings(
             [ ('link', int, 1),
               ('altreadout', int, 10),
-              ('distreadout', int, 200),
+              ('distreadout', int, 0),
               ('battreadout', int, 0),
               ('heartbeat', int, 1),
               ('numcells', int, 1),
