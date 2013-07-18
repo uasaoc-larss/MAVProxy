@@ -1303,7 +1303,8 @@ def master_callback(m, master):
         mpstate.status.last_fence_status = m.breach_status
 
     elif mtype == "GLOBAL_POSITION_INT":
-        report_altitude(m.relative_alt*0.001)
+        if 'MAVLINK09' not in os.environ or os.environ['MAVLINK09'] != '1':
+            report_altitude(m.relative_alt*0.001)
 
     elif mtype == "BAD_DATA":
         if mpstate.settings.shownoise and mavutil.all_printable(m.data):
@@ -1675,7 +1676,7 @@ if __name__ == '__main__':
     #TODO Make it handle more than one target system
     #TODO Also, figure out why it ignores target-system
     parser.add_option("--target-system", dest='TARGET_SYSTEM', type='int',
-                      default=1, help='MAVLink target master system')
+                      default=0, help='MAVLink target master system')
     parser.add_option("--target-component", dest='TARGET_COMPONENT', type='int',
                       default=1, help='MAVLink target master component')
     parser.add_option("--logfile", dest="logfile", help="MAVLink master logfile",
