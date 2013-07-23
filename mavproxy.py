@@ -38,8 +38,6 @@ class MPStatus(object):
         self.counters = {'MasterIn' : [], 'MasterOut' : 0, 'FGearIn' : 0, 'FGearOut' : 0, 'Slave' : 0}
         self.setup_mode = opts.setup
         self.wp_op = None
-        self.switchstart4D = False
-        self.switchdone4D = False
         self.wp_save_filename = None
         self.wploader = mavwp.MAVWPLoader()
         self.fenceloader = mavwp.MAVFenceLoader()
@@ -84,6 +82,9 @@ class MPStatus(object):
         self.new_pattern_filename = []
         self.wp_upload_success = False
         self.wp_setnow = False
+        self.upload_success_4D = False
+        self.setnow_4D = False
+        self.jump_wp_4D = 0
 
     def show(self, f, pattern=None):
         '''write status to status.txt'''
@@ -364,6 +365,7 @@ def process_waypoint_request(m, master):
         mpstate.status.loading_waypoints = False
         mpstate.console.writeln("Sent all %u waypoints" % mpstate.status.wploader.count())
         mpstate.status.wp_upload_success = True
+        mpstate.status.upload_success_4D = True
 
 def load_waypoints(filename):
     '''load waypoints from a file'''
@@ -1334,8 +1336,8 @@ def master_callback(m, master):
                 lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
                 head = master.field('VFR_HUD', 'heading', 0)
                 crsspd = mpstate.mav_param.get('TRIM_ARSPD_CM', 0)
-                wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, wmat)
-                mpstate.status.switchstart4D == True
+                mpstate.status.jump_wp_4D = wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, wmat)
+                mpstate.status.setnow_4D == True
                 load_waypoints('temp4Dwps.txt')
             mpstate.status.wp_op = None
 
@@ -1344,6 +1346,11 @@ def master_callback(m, master):
         if mpstate.status.wp_upload_success == True:
             if mpstate.status.wp_setnow == True:
                 cmd_set_wps(mpstate.status.new_pattern_filename)
+        if mpstate.status.upload_success_4D == True:
+            if mpstate.status.setnow_4D == True:
+                mpstate.master().waypoint_set_current_send(mpstate.status.jump_wp_4D)
+                mpstate.status.upload_success_4D = False
+                mpstate.status.setnow_4D = False
     elif mtype in ["WAYPOINT_CURRENT", "MISSION_CURRENT"]:
         if m.seq != mpstate.status.last_waypoint:
             mpstate.status.last_waypoint = m.seq

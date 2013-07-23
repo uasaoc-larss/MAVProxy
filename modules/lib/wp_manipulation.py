@@ -209,7 +209,7 @@ def jump_set_4D(cmdlist, wpnum, time, lat, lon, head, cruise, wmat):
         for j in range(len(wmat[0])):
             wmat[i][j] = str(wmat[i][j])
     make_waypoint_file(wmat, 'temp4Dwps.txt')
-    return
+    return nwp
     
     
 #if __name__ == '__main__':
