@@ -1335,7 +1335,7 @@ def master_callback(m, master):
                 head = master.field('VFR_HUD', 'heading', 0)
                 crsspd = mpstate.mav_param.get('TRIM_ARSPD_CM', 0)
                 wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, wmat)
-                mpstate.status.switchstart4D == True:
+                mpstate.status.switchstart4D == True
                 load_waypoints('temp4Dwps.txt')
             mpstate.status.wp_op = None
 

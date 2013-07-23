@@ -197,13 +197,13 @@ def jump_set_4D(cmdlist, wpnum, time, lat, lon, head, cruise, wmat):
     lat2 = decimal.Decimal(lat2)*1
     lon2 = decimal.Decimal(lon2)*1
     print("old lat: %s, new lat: %s, old lon: %s, new lon: %s" % (lat,lat2,lon,lon2))
-    wmat[nwp][2] = time
-    wmat[nwp][6] = lat2
-    wmat[nwp][7] = lon2
-    wmat[njmp][2] = wpnum
-    wmat[njmp][3] = '100'
-    wmat[njmp][6] = lat2
-    wmat[njmp][7] = lon2
+    wmat[nwp][4] = time
+    wmat[nwp][8] = lat2
+    wmat[nwp][9] = lon2
+    wmat[njmp][4] = wpnum
+    wmat[njmp][5] = '100'
+    wmat[njmp][8] = lat2
+    wmat[njmp][9] = lon2
     wmat[0][1] = 1
     for i in range(n):
         for j in range(len(wmat[0])):
