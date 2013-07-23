@@ -38,6 +38,8 @@ class MPStatus(object):
         self.counters = {'MasterIn' : [], 'MasterOut' : 0, 'FGearIn' : 0, 'FGearOut' : 0, 'Slave' : 0}
         self.setup_mode = opts.setup
         self.wp_op = None
+        self.switchstart4D = False
+        self.switchdone4D = False
         self.wp_save_filename = None
         self.wploader = mavwp.MAVWPLoader()
         self.fenceloader = mavwp.MAVFenceLoader()
@@ -944,7 +946,7 @@ command_map = {
     'cmdreset': (cmd_ctrl_reset,'Gives radio control back'),
     'print'   : (cmd_print,    'Print something out for debugging'),
     'upwps'   : (cmd_new_wps,  'Uploads a new wp pattern and sets a goto wp'),
-    'setwp'  : (cmd_set_wps,  'Sets the best waypoint as the goto wp')
+    'setwp'   : (cmd_set_wps,  'Sets the best waypoint as the goto wp')
     }
 
 def process_stdin(line):
@@ -1318,20 +1320,23 @@ def master_callback(m, master):
                 for i in range(mpstate.status.wploader.count()):
                     cl = mpstate.status.wploader.wp(i)
                     decimal.getcontext().prec = 7
-                    clline = [str(w.command)]
-                    cmdlist.append(wline)
+                    clline = [str(cl.command)]
+                    cmdlist.append(clline)
                 wmat = []
                 for i in range(mpstate.status.wploader.count()):
                     w = mpstate.status.wploader.wp(i)
                     decimal.getcontext().prec = 7
-                    wline = [decimal.Decimal(w.frame)*1, decimal.Decimal(w.command)*1, decimal.Decimal(w.param1)*1, decimal.Decimal(w.param2)*1,
+                    wline = [i, 0, decimal.Decimal(w.frame)*1, decimal.Decimal(w.command)*1, decimal.Decimal(w.param1)*1, decimal.Decimal(w.param2)*1,
                         decimal.Decimal(w.param3)*1, decimal.Decimal(w.param4)*1, decimal.Decimal(w.x)*1, decimal.Decimal(w.y)*1, decimal.Decimal(w.z)*1,
                         decimal.Decimal(w.autocontinue)*1]
                     wmat.append(wline)
                 lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
                 lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
                 head = master.field('VFR_HUD', 'heading', 0)
-                wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, wmat)                     
+                crsspd = mpstate.mav_param.get('TRIM_ARSPD_CM', 0)
+                wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, wmat)
+                mpstate.status.switchstart4D == True:
+                load_waypoints('temp4Dwps.txt')
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:

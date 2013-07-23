@@ -171,20 +171,21 @@ def validate_wps(wmat, filemat, current_wp_file):
     print('********************************************************************************')
     return failed_wps
     
-def jump_set_4D(wmat, wpnum, time, lat, lon, head, wmat2):
+def jump_set_4D(cmdlist, wpnum, time, lat, lon, head, cruise, wmat):
+    decimal.getcontext().prec = 7
     n = len(wmat)
     print("Number of waypoints: %u" % (n))
     if n > 2:
-        nm1 = str(wmat[n-1][0])
-        nm2 = str(wmat[n-2][0])
-        nm3 = str(wmat[n-3][0])  
+        nm1 = str(cmdlist[n-1][0])
+        nm2 = str(cmdlist[n-2][0])
+        nm3 = str(cmdlist[n-3][0])  
         if (nm1 == '177') & (nm2 == '16'):
             print("ends with a jump")
-            nwp = n
+            nwp = n-2
             njmp = n-1
         elif (nm1 == '16') & (nm2 == '177') & (nm3 == '16'):
             print("ends with a dummy")
-            nwp = n-1
+            nwp = n-3
             njmp = n-2
         else:
             print("Incorrect waypoint file format. Should end with <wp, jump> or <wp, jump, wp>.")
@@ -192,8 +193,23 @@ def jump_set_4D(wmat, wpnum, time, lat, lon, head, wmat2):
     else:
         print("There are not enough waypoints (%u) in the file." % n)
         return
-    
-        
+    (lat2, lon2) = mp_util.gps_newpos(lat, lon, head, cruise)
+    lat2 = decimal.Decimal(lat2)*1
+    lon2 = decimal.Decimal(lon2)*1
+    print("old lat: %s, new lat: %s, old lon: %s, new lon: %s" % (lat,lat2,lon,lon2))
+    wmat[nwp][2] = time
+    wmat[nwp][6] = lat2
+    wmat[nwp][7] = lon2
+    wmat[njmp][2] = wpnum
+    wmat[njmp][3] = '100'
+    wmat[njmp][6] = lat2
+    wmat[njmp][7] = lon2
+    wmat[0][1] = 1
+    for i in range(n):
+        for j in range(len(wmat[0])):
+            wmat[i][j] = str(wmat[i][j])
+    make_waypoint_file(wmat, 'temp4Dwps.txt')
+    return
     
     
 #if __name__ == '__main__':
