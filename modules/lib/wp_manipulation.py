@@ -171,6 +171,31 @@ def validate_wps(wmat, filemat, current_wp_file):
     print('********************************************************************************')
     return failed_wps
     
+def jump_set_4D(wmat, wpnum, time, lat, lon, head, wmat2):
+    n = len(wmat)
+    print("Number of waypoints: %u" % (n))
+    if n > 2:
+        nm1 = str(wmat[n-1][0])
+        nm2 = str(wmat[n-2][0])
+        nm3 = str(wmat[n-3][0])  
+        if (nm1 == '177') & (nm2 == '16'):
+            print("ends with a jump")
+            nwp = n
+            njmp = n-1
+        elif (nm1 == '16') & (nm2 == '177') & (nm3 == '16'):
+            print("ends with a dummy")
+            nwp = n-1
+            njmp = n-2
+        else:
+            print("Incorrect waypoint file format. Should end with <wp, jump> or <wp, jump, wp>.")
+            return
+    else:
+        print("There are not enough waypoints (%u) in the file." % n)
+        return
+    
+        
+    
+    
 #if __name__ == '__main__':
 #    L=readwps()
 #    print L

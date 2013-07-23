@@ -426,7 +426,7 @@ def save_waypoints(filename):
 def cmd_wp(args):
     '''waypoint commands'''
     if len(args) < 1:
-        print("usage: wp <list|update|load|save|set|validate|scale|clear>")
+        print("usage: wp <list|update|load|save|set|4Dset|validate|scale|clear>")
         return
 
     if args[0] == "load":
@@ -480,10 +480,22 @@ def cmd_wp(args):
             print("usage: wp set <wpindex>")
             return
         mpstate.master().waypoint_set_current_send(int(args[1]))
+    elif args[0] == "4Dset":
+        if len(args) != 3:
+            print("usage: wp 4Dset <wpindex> <time>")
+            return
+        mpstate.status.wp_op = "4Dset"
+        mpstate.status.set4Dwp = args[1]
+        mpstate.status.set4Dtime = args[2]
+        mpstate.master().waypoint_request_list_send()
+        #Set waypoint location
+        #Set do-jump location 
+        #upload 2 waypoints
+        #send to the waypoint
     elif args[0] == "clear":
         mpstate.master().waypoint_clear_all_send()
     else:
-        print("Usage: wp <list|update|load|save|set|show|validate|scale|clear>")
+        print("Usage: wp <list|update|load|save|set|4Dset|show|validate|scale|clear>")
 
 def fetch_fence_point(i):
     '''fetch one fence point'''
@@ -1301,6 +1313,25 @@ def master_callback(m, master):
                         # print('Attempting to repair broken waypoints...')
                         # for k in failed_wps:
                             # update_waypoints(mpstate.status.current_wp_file, k)
+            elif mpstate.status.wp_op == '4Dset':
+                cmdlist = []
+                for i in range(mpstate.status.wploader.count()):
+                    cl = mpstate.status.wploader.wp(i)
+                    decimal.getcontext().prec = 7
+                    clline = [str(w.command)]
+                    cmdlist.append(wline)
+                wmat = []
+                for i in range(mpstate.status.wploader.count()):
+                    w = mpstate.status.wploader.wp(i)
+                    decimal.getcontext().prec = 7
+                    wline = [decimal.Decimal(w.frame)*1, decimal.Decimal(w.command)*1, decimal.Decimal(w.param1)*1, decimal.Decimal(w.param2)*1,
+                        decimal.Decimal(w.param3)*1, decimal.Decimal(w.param4)*1, decimal.Decimal(w.x)*1, decimal.Decimal(w.y)*1, decimal.Decimal(w.z)*1,
+                        decimal.Decimal(w.autocontinue)*1]
+                    wmat.append(wline)
+                lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
+                lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
+                head = master.field('VFR_HUD', 'heading', 0)
+                wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, wmat)                     
             mpstate.status.wp_op = None
 
     elif mtype in ["WAYPOINT_REQUEST", "MISSION_REQUEST"]:
