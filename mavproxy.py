@@ -82,8 +82,8 @@ class MPStatus(object):
         self.new_pattern_filename = []
         self.wp_upload_success = False
         self.wp_setnow = False
-        self.upload_success_4D = False
         self.setnow_4D = False
+        self.upload_success_4D = False
         self.jump_wp_4D = 0
 
     def show(self, f, pattern=None):
@@ -1337,7 +1337,7 @@ def master_callback(m, master):
                 head = master.field('VFR_HUD', 'heading', 0)
                 crsspd = mpstate.mav_param.get('TRIM_ARSPD_CM', 0)
                 mpstate.status.jump_wp_4D = wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, wmat)
-                mpstate.status.setnow_4D == True
+                mpstate.status.setnow_4D = True
                 load_waypoints('temp4Dwps.txt')
             mpstate.status.wp_op = None
 
