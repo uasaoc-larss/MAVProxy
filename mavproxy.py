@@ -1328,9 +1328,9 @@ def master_callback(m, master):
                 for i in range(mpstate.status.wploader.count()):
                     w = mpstate.status.wploader.wp(i)
                     decimal.getcontext().prec = 7
-                    wline = [i, 0, decimal.Decimal(w.frame)*1, decimal.Decimal(w.command)*1, decimal.Decimal(w.param1)*1, decimal.Decimal(w.param2)*1,
-                        decimal.Decimal(w.param3)*1, decimal.Decimal(w.param4)*1, decimal.Decimal(w.x)*1, decimal.Decimal(w.y)*1, decimal.Decimal(w.z)*1,
-                        decimal.Decimal(w.autocontinue)*1]
+                    wline = [str(i), '0', str(decimal.Decimal(w.frame)*1), str(decimal.Decimal(w.command)*1), str(decimal.Decimal(w.param1)*1), str(decimal.Decimal(w.param2)*1),
+                        str(decimal.Decimal(w.param3)*1), str(decimal.Decimal(w.param4)*1), str(decimal.Decimal(w.x)*1), str(decimal.Decimal(w.y)*1), str(decimal.Decimal(w.z)*1),
+                        str(decimal.Decimal(w.autocontinue)*1)]
                     wmat.append(wline)
                 lat = master.field('GLOBAL_POSITION_INT', 'lat', 0)*1.0e-7
                 lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7

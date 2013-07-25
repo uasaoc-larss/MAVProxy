@@ -171,53 +171,33 @@ def validate_wps(wmat, filemat, current_wp_file):
     print('********************************************************************************')
     return failed_wps
     
-def jump_set_4D(cmdlist, wpnum, time, lat, lon, head, cruise, wmat):
-    wpnum = int(wpnum)
+def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, wmat):
     decimal.getcontext().prec = 7
-    n = len(wmat)
-    print("Number of waypoints: %u" % (n))
-    if n >3:
-        nm1 = str(cmdlist[n-1][0])
-        nm2 = str(cmdlist[n-2][0])
-        nm3 = str(cmdlist[n-3][0])  
-        nm4 = str(cmdlist[n-4][0])  
-        if (nm1 == '177') & (nm2 == '16') & (nm3 == '16'):
-            print("ends with a jump")
-            nwp = n-3
-            nwp2 = n-2
-            njmp = n-1
-        elif (nm1 == '16') & (nm2 == '177') & (nm3 == '16') & (nm4 == '16'):
-            print("ends with a dummy")
-            nwp = n-4
-            nwp2 = n-3
-            njmp = n-2
-        else:
-            print("Incorrect waypoint file format. Should end with <wp, wp, jump> or <wp, wp, jump, wp>.")
-            return
-    else:
-        print("There are not enough waypoints (%u) in the file." % n)
-        return
-    (lat2, lon2) = mp_util.gps_newpos(lat, lon, head, cruise/8)
+    wpnum = int(wpnum)
+    a = 0
+    for i in wmat:
+        if a > 0:
+            a = a + 1
+        if (i[3] == '115'):
+            a = 1
+    for i in range(a - 1):
+        wmat.pop()
+    (lat2, lon2) = mp_util.gps_newpos(latitude, longitude, head, cruise/8)
     lat2 = decimal.Decimal(lat2)*1
     lon2 = decimal.Decimal(lon2)*1
     lat3 = wmat[wpnum][8]
     lon3 = wmat[wpnum][9]
-    print("old lat: %s, new lat: %s, old lon: %s, new lon: %s" % (lat,lat2,lon,lon2))
-    wmat[nwp][8] = lat2
-    wmat[nwp][9] = lon2
-    wmat[nwp2][4] = time
-    wmat[nwp2][8] = lat3
-    wmat[nwp2][9] = lon3
-    wmat[njmp][4] = wpnum + 1 # use next nav command instead
-    wmat[njmp][5] = '100'
-    wmat[njmp][8] = lat3
-    wmat[njmp][9] = lon3
-    wmat[0][1] = 1
-    for i in range(n):
-        for j in range(len(wmat[0])):
-            wmat[i][j] = str(wmat[i][j])
+    cmd = [16, 16, 177, 16]
+    p1 = [0, time, wpnum + 1, 0]
+    p2 = [0, 0, 10, 0]
+    lat = [lat2, lat3, 0, lat3]
+    lon = [lon2, lon3, 0, lon3]
+    n = len(wmat)
+    for i in range(len(cmd)):
+        w = [str(len(wmat)), '0', '3', str(cmd[i]), str(p1[i]), str(p2[i]), '0', '0', str(lat[i]), str(lon[i]), wmat[wpnum][10], '1'] 
+        wmat.append(w)
     make_waypoint_file(wmat, 'temp4Dwps.txt')
-    return nwp
+    return n
     
     
 #if __name__ == '__main__':
