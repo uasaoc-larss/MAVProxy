@@ -206,13 +206,13 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspee
         (sqlat, sqlon) = mp_util.gps_newpos(lat_s, lon_s, angle_to_wp+90, sidelength)
         (latsq3, lonsq3) = mp_util.gps_newpos(sqlat, sqlon, angle_to_wp+180, sidelength)
         (latsq4, lonsq4) = mp_util.gps_newpos(latsq3, lonsq3, angle_to_wp+270, sidelength)
-        sqlat = [sqlat, latsq3, latsq4, lat_s]
-        sqlon = [sqlon, lonsq3, lonsq4, lon_s]
+        sqlat = [sqlat, latsq3, latsq4]
+        sqlon = [sqlon, lonsq3, lonsq4]
         prevlength = len(sqlat)
-    longtime = int(time) - sidetime*4
+    longtime = int(time) - sidetime*3
     if longtime > 255: #Time parameter is too big
-        lat_ext = lat_s
-        lon_ext = lon_s
+        lat_ext = latsq4
+        lon_ext = lonsq4
         wpstoadd = int(math.floor(longtime/255.))
         for i in range(wpstoadd):
             (lat_ext, lon_ext) = mp_util.gps_newpos(lat_ext, lon_ext, angle_to_wp, 255*cruise)
