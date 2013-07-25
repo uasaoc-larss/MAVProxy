@@ -5,6 +5,7 @@
 
 import mp_util #from MAVProxy
 import decimal
+import math
 
 def waypoint_scale(pattern = 'A.txt', scale = '1', scale_x = 39.333420, scale_y = -86.029472, filepath = r'C:\Documents and Settings\LARSS\My Documents\GitHub\MAVProxy'):
     '''Scales a waypoint file based on cruise speed in the lateral direction''' 
@@ -171,10 +172,12 @@ def validate_wps(wmat, filemat, current_wp_file):
     print('********************************************************************************')
     return failed_wps
     
-def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, wmat):
+def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspeed, wmat):
+    cruise = cruise/100
     decimal.getcontext().prec = 7
     wpnum = int(wpnum)
     a = 0
+    #Remove all waypoints after the Yaw Command marker
     for i in wmat:
         if a > 0:
             a = a + 1
@@ -182,16 +185,46 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, wmat):
             a = 1
     for i in range(a - 1):
         wmat.pop()
-    (lat2, lon2) = mp_util.gps_newpos(latitude, longitude, head, cruise/8)
-    lat2 = decimal.Decimal(lat2)*1
-    lon2 = decimal.Decimal(lon2)*1
-    lat3 = wmat[wpnum][8]
-    lon3 = wmat[wpnum][9]
-    cmd = [16, 16, 177, 16]
-    p1 = [0, time, wpnum + 1, 0]
-    p2 = [0, 0, 10, 0]
-    lat = [lat2, lat3, 0, lat3]
-    lon = [lon2, lon3, 0, lon3]
+    (lat_s, lon_s) = mp_util.gps_newpos(latitude, longitude, head, cruise)
+    lat_s = decimal.Decimal(lat_s)*1
+    lon_s = decimal.Decimal(lon_s)*1
+    lat_f = decimal.Decimal(wmat[wpnum][8])*1
+    lon_f = decimal.Decimal(wmat[wpnum][9])*1
+    #Check if the plane will arrive too soon
+    dist = mp_util.gps_distance(latitude, longitude, lat_f, lon_f)
+    mintime = dist/minspeed
+    exttime = []
+    if int(time) < mintime:
+        sqlat = []
+        sqlon = []
+        sidetime = 0
+    else:
+        nominaltime = dist/cruise
+        sidetime = int((int(time)-nominaltime)/4)
+        sidelength = sidetime*cruise
+        angle_to_wp = mp_util.gps_bearing(float(lat_s), float(lon_s), float(lat_f), float(lon_f))
+        (sqlat, sqlon) = mp_util.gps_newpos(lat_s, lon_s, angle_to_wp+90, sidelength)
+        (latsq3, lonsq3) = mp_util.gps_newpos(sqlat, sqlon, angle_to_wp+180, sidelength)
+        (latsq4, lonsq4) = mp_util.gps_newpos(latsq3, lonsq3, angle_to_wp+270, sidelength)
+        sqlat = [sqlat, latsq3, latsq4, lat_s]
+        sqlon = [sqlon, lonsq3, lonsq4, lon_s]
+        prevlength = len(sqlat)
+    longtime = int(time) - sidetime*4
+    if longtime > 255: #Time parameter is too big
+        lat_ext = lat_s
+        lon_ext = lon_s
+        wpstoadd = int(math.floor(longtime/255.))
+        for i in range(wpstoadd):
+            (lat_ext, lon_ext) = mp_util.gps_newpos(lat_ext, lon_ext, angle_to_wp, 255*cruise)
+            sqlat.append(lat_ext)
+            sqlon.append(lon_ext)
+            exttime.append(255)
+        longtime = longtime%255
+    cmd = [16]*(len(sqlat)+2) + [177, 16]
+    p1 = [0] + [sidetime]*prevlength + exttime + [longtime, wpnum + 1, 0]
+    p2 = [0]*(len(sqlat)+2) + [10, 0]
+    lat = [lat_s] + sqlat + [lat_f, 0, lat_f]
+    lon = [lon_s] + sqlon + [lon_f, 0, lon_f]
     n = len(wmat)
     for i in range(len(cmd)):
         w = [str(len(wmat)), '0', '3', str(cmd[i]), str(p1[i]), str(p2[i]), '0', '0', str(lat[i]), str(lon[i]), wmat[wpnum][10], '1'] 

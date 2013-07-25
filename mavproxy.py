@@ -1336,7 +1336,8 @@ def master_callback(m, master):
                 lon = master.field('GLOBAL_POSITION_INT', 'lon', 0)*1.0e-7
                 head = master.field('VFR_HUD', 'heading', 0)
                 crsspd = mpstate.mav_param.get('TRIM_ARSPD_CM', 0)
-                mpstate.status.jump_wp_4D = wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, wmat)
+                minspd = mpstate.mav_param.get('ARSPD_FBW_MIN', 0)
+                mpstate.status.jump_wp_4D = wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, minspd, wmat)
                 mpstate.status.setnow_4D = True
                 load_waypoints('temp4Dwps.txt')
             mpstate.status.wp_op = None
