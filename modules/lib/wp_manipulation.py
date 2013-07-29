@@ -172,7 +172,7 @@ def validate_wps(wmat, filemat, current_wp_file):
     print('********************************************************************************')
     return failed_wps
     
-def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspeed, wmat):
+def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspeed, loiterrad, wmat):
     cruise = cruise/100
     decimal.getcontext().prec = 7
     wpnum = int(wpnum)
@@ -185,34 +185,45 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspee
             a = 1
     for i in range(a - 1):
         wmat.pop()
-    (lat_s, lon_s) = mp_util.gps_newpos(latitude, longitude, head, cruise)
+    (lat_s, lon_s) = mp_util.gps_newpos(latitude, longitude, head, cruise*13)
     lat_s = decimal.Decimal(lat_s)*1
     lon_s = decimal.Decimal(lon_s)*1
     lat_f = decimal.Decimal(wmat[wpnum][8])*1
     lon_f = decimal.Decimal(wmat[wpnum][9])*1
     #Check if the plane will arrive too soon
+    
     dist = mp_util.gps_distance(latitude, longitude, lat_f, lon_f)
     mintime = dist/minspeed
     exttime = []
-    if int(time) < mintime:
+    #if int(time) < mintime:
+    angle_to_wp = mp_util.gps_bearing(float(lat_s), float(lon_s), float(lat_f), float(lon_f))
+    if ((dist) <= (int(time)/cruise+4*loiterrad)):
         sqlat = []
         sqlon = []
         sidetime = 0
+        prevlength = 0
+        lat_ext = lat_s
+        lon_ext = lon_s
     else:
         nominaltime = dist/cruise
+        nominalsidetime = loiterrad/cruise
         sidetime = int((int(time)-nominaltime)/4)
+        numloops = int(math.ceil(sidetime/nominalsidetime))
+        sidetime = sidetime/numloops
         sidelength = sidetime*cruise
-        angle_to_wp = mp_util.gps_bearing(float(lat_s), float(lon_s), float(lat_f), float(lon_f))
-        (sqlat, sqlon) = mp_util.gps_newpos(lat_s, lon_s, angle_to_wp+90, sidelength)
-        (latsq3, lonsq3) = mp_util.gps_newpos(sqlat, sqlon, angle_to_wp+180, sidelength)
+        (latsq2, lonsq2) = mp_util.gps_newpos(lat_s, lon_s, angle_to_wp+90, sidelength)
+        (latsq3, lonsq3) = mp_util.gps_newpos(latsq2, lonsq2, angle_to_wp+180, sidelength)
         (latsq4, lonsq4) = mp_util.gps_newpos(latsq3, lonsq3, angle_to_wp+270, sidelength)
-        sqlat = [sqlat, latsq3, latsq4]
-        sqlon = [sqlon, lonsq3, lonsq4]
+        sqlat = [latsq2, latsq3, latsq4, lat_s]*numloops
+        sqlon = [lonsq2, lonsq3, lonsq4, lon_s]*numloops
+        sqlat.pop()
+        sqlon.pop()
         prevlength = len(sqlat)
-    longtime = int(time) - sidetime*3
-    if longtime > 255: #Time parameter is too big
         lat_ext = latsq4
         lon_ext = lonsq4
+    longtime = int(time) - sidetime*3
+    if longtime > 255: #Time parameter is too big
+        print('************** %s ***************' % 'Mucho Grande times!')
         wpstoadd = int(math.floor(longtime/255.))
         for i in range(wpstoadd):
             (lat_ext, lon_ext) = mp_util.gps_newpos(lat_ext, lon_ext, angle_to_wp, 255*cruise)

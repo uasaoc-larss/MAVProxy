@@ -492,10 +492,6 @@ def cmd_wp(args):
         mpstate.status.set4Dwp = args[1]
         mpstate.status.set4Dtime = args[2]
         mpstate.master().waypoint_request_list_send()
-        #Set waypoint location
-        #Set do-jump location 
-        #upload 2 waypoints
-        #send to the waypoint
     elif args[0] == "clear":
         mpstate.master().waypoint_clear_all_send()
     else:
@@ -1337,7 +1333,8 @@ def master_callback(m, master):
                 head = master.field('VFR_HUD', 'heading', 0)
                 crsspd = mpstate.mav_param.get('TRIM_ARSPD_CM', 0)
                 minspd = mpstate.mav_param.get('ARSPD_FBW_MIN', 0)
-                mpstate.status.jump_wp_4D = wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, minspd, wmat)
+                loiterrad = 16*mpstate.mav_param.get('WP_LOITER_RAD', 0)
+                mpstate.status.jump_wp_4D = wp_manipulation.jump_set_4D(cmdlist, mpstate.status.set4Dwp, mpstate.status.set4Dtime, lat, lon, head, crsspd, minspd, loiterrad, wmat)
                 mpstate.status.setnow_4D = True
                 load_waypoints('temp4Dwps.txt')
             mpstate.status.wp_op = None
