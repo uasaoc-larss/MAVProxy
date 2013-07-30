@@ -193,14 +193,13 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, loiterr
     #Location of the commanded waypoint
     lat_f = decimal.Decimal(wmat[wpnum][8])*1
     lon_f = decimal.Decimal(wmat[wpnum][9])*1
-    #Check if the plane will arrive too soon
     dist = mp_util.gps_distance(latitude, longitude, lat_f, lon_f) #actual distance to travel
-    exttime = []
     angle_to_wp = mp_util.gps_bearing(float(lat_s), float(lon_s), float(lat_f), float(lon_f))
-    print('***************************************')
-    print('actual distance + loiter: %u, timedist: %u' % ((dist+4*loiterrad), (int(time)*cruise)))
-    print(4*loiterrad)
-    if ((dist+4*loiterrad) >= (int(time)*cruise)):
+    exttime = []
+    nominal_time_dist = int(time)*cruise
+    nominal_physical_dist = dist+4*loiterrad
+    #Check if the plane will arrive too soon
+    if (nominal_physical_dist >= nominal_time_dist):
         sqlat = []
         sqlon = []
         sidetime = 0
@@ -234,7 +233,7 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, loiterr
             sqlon.append(lon_ext)
             exttime.append(255)
         longtime = longtime%255
-    if ((dist+4*loiterrad) <= (int(time)*cruise)):
+    if (nominal_physical_dist <= nominal_time_dist):
         print('with loops')
         cmd = [16]*5 + [177] + [16]*(len(exttime)+1) + [177, 16]
         p1 = [0] + [sidetime]*4 + [n+1] + exttime + [longtime, wpnum + 1, 0]
