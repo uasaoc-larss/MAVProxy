@@ -172,10 +172,10 @@ def validate_wps(wmat, filemat, current_wp_file):
     print('********************************************************************************')
     return failed_wps
     
-def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspeed, loiterrad, wmat):
-    cruise = cruise/100
+def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, loiterrad, wmat):
+    cruise = cruise/100 #cruise speed in m/s
     decimal.getcontext().prec = 7
-    wpnum = int(wpnum)
+    wpnum = int(wpnum) #commanded waypoint to go to
     a = 0
     #Remove all waypoints after the Yaw Command marker
     for i in wmat:
@@ -185,17 +185,17 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspee
             a = 1
     for i in range(a - 1):
         wmat.pop()
-    n = len(wmat)
+    n = len(wmat) #length of truncated waypoint file
+    #Find location of waypoint to place directly in front of the UAS
     (lat_s, lon_s) = mp_util.gps_newpos(latitude, longitude, head, cruise*13)
     lat_s = decimal.Decimal(lat_s)*1
     lon_s = decimal.Decimal(lon_s)*1
+    #Location of the commanded waypoint
     lat_f = decimal.Decimal(wmat[wpnum][8])*1
     lon_f = decimal.Decimal(wmat[wpnum][9])*1
     #Check if the plane will arrive too soon
-    dist = mp_util.gps_distance(latitude, longitude, lat_f, lon_f)
-    mintime = dist/minspeed
+    dist = mp_util.gps_distance(latitude, longitude, lat_f, lon_f) #actual distance to travel
     exttime = []
-    #if int(time) < mintime:
     angle_to_wp = mp_util.gps_bearing(float(lat_s), float(lon_s), float(lat_f), float(lon_f))
     print('***************************************')
     print('actual distance + loiter: %u, timedist: %u' % ((dist+4*loiterrad), (int(time)*cruise)))
