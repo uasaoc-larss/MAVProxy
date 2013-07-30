@@ -185,43 +185,46 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspee
             a = 1
     for i in range(a - 1):
         wmat.pop()
+    n = len(wmat)
     (lat_s, lon_s) = mp_util.gps_newpos(latitude, longitude, head, cruise*13)
     lat_s = decimal.Decimal(lat_s)*1
     lon_s = decimal.Decimal(lon_s)*1
     lat_f = decimal.Decimal(wmat[wpnum][8])*1
     lon_f = decimal.Decimal(wmat[wpnum][9])*1
     #Check if the plane will arrive too soon
-    
     dist = mp_util.gps_distance(latitude, longitude, lat_f, lon_f)
     mintime = dist/minspeed
     exttime = []
     #if int(time) < mintime:
     angle_to_wp = mp_util.gps_bearing(float(lat_s), float(lon_s), float(lat_f), float(lon_f))
-    if ((dist) <= (int(time)/cruise+4*loiterrad)):
+    print('***************************************')
+    print('actual distance + loiter: %u, timedist: %u' % ((dist+4*loiterrad), (int(time)*cruise)))
+    print(4*loiterrad)
+    if ((dist+4*loiterrad) >= (int(time)*cruise)):
         sqlat = []
         sqlon = []
         sidetime = 0
         prevlength = 0
         lat_ext = lat_s
         lon_ext = lon_s
+        numloops = 0
     else:
         nominaltime = dist/cruise
         nominalsidetime = loiterrad/cruise
         sidetime = int((int(time)-nominaltime)/4)
+        print('nomsidetime: %u, sidetime: %u, nomtime: %u' % (nominalsidetime, sidetime, nominaltime))
         numloops = int(math.ceil(sidetime/nominalsidetime))
         sidetime = sidetime/numloops
         sidelength = sidetime*cruise
         (latsq2, lonsq2) = mp_util.gps_newpos(lat_s, lon_s, angle_to_wp+90, sidelength)
         (latsq3, lonsq3) = mp_util.gps_newpos(latsq2, lonsq2, angle_to_wp+180, sidelength)
         (latsq4, lonsq4) = mp_util.gps_newpos(latsq3, lonsq3, angle_to_wp+270, sidelength)
-        sqlat = [latsq2, latsq3, latsq4, lat_s]*numloops
-        sqlon = [lonsq2, lonsq3, lonsq4, lon_s]*numloops
-        sqlat.pop()
-        sqlon.pop()
+        sqlat = [latsq2, latsq3, latsq4, lat_s, lat_s]
+        sqlon = [lonsq2, lonsq3, lonsq4, lon_s, lon_s]
         prevlength = len(sqlat)
         lat_ext = latsq4
         lon_ext = lonsq4
-    longtime = int(time) - sidetime*3
+    longtime = int(time) - sidetime*4*numloops
     if longtime > 255: #Time parameter is too big
         print('************** %s ***************' % 'Mucho Grande times!')
         wpstoadd = int(math.floor(longtime/255.))
@@ -231,12 +234,19 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, minspee
             sqlon.append(lon_ext)
             exttime.append(255)
         longtime = longtime%255
-    cmd = [16]*(len(sqlat)+2) + [177, 16]
-    p1 = [0] + [sidetime]*prevlength + exttime + [longtime, wpnum + 1, 0]
-    p2 = [0]*(len(sqlat)+2) + [10, 0]
+    if ((dist+4*loiterrad) <= (int(time)*cruise)):
+        print('with loops')
+        cmd = [16]*5 + [177] + [16]*(len(exttime)+1) + [177, 16]
+        p1 = [0] + [sidetime]*4 + [n+1] + exttime + [longtime, wpnum + 1, 0]
+        p2 = [0]*5 + [numloops-1] + [0]*(len(exttime)+1) + [10, 0]
+    else:
+        print('without loops')
+        cmd = [16]*(len(exttime)+2) + [177, 16]
+        p1 = [0] + exttime +[longtime, wpnum + 1, 0]
+        p2 = [0]*(len(exttime)+2) + [10, 0]
     lat = [lat_s] + sqlat + [lat_f, 0, lat_f]
     lon = [lon_s] + sqlon + [lon_f, 0, lon_f]
-    n = len(wmat)
+    print('cmd: %u, p1: %u, p2: %u, lat: %u, lon: %u' % (len(cmd), len(p1), len(p2), len(lat), len(lon)))
     for i in range(len(cmd)):
         w = [str(len(wmat)), '0', '3', str(cmd[i]), str(p1[i]), str(p2[i]), '0', '0', str(lat[i]), str(lon[i]), wmat[wpnum][10], '1'] 
         wmat.append(w)
