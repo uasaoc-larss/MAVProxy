@@ -195,7 +195,6 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, loiterr
     lon_f = decimal.Decimal(wmat[wpnum][9])*1
     dist = mp_util.gps_distance(latitude, longitude, lat_f, lon_f) #actual distance to travel
     angle_to_wp = mp_util.gps_bearing(float(lat_s), float(lon_s), float(lat_f), float(lon_f))
-    exttime = []
     nominal_time_dist = int(time)*cruise
     nominal_physical_dist = dist+4*loiterrad
     #Check if the plane will arrive too soon
@@ -224,9 +223,10 @@ def jump_set_4D(cmdlist, wpnum, time, latitude, longitude, head, cruise, loiterr
         lat_ext = latsq4
         lon_ext = lonsq4
     longtime = int(time) - sidetime*4*numloops
+    exttime = []
+    #If a distance will take more than 255 seconds, add additional waypoints along the way
     if longtime > 255: #Time parameter is too big
-        print('************** %s ***************' % 'Mucho Grande times!')
-        wpstoadd = int(math.floor(longtime/255.))
+        wpstoadd = int(math.floor(longtime/255.)) #additional waypoints needed
         for i in range(wpstoadd):
             (lat_ext, lon_ext) = mp_util.gps_newpos(lat_ext, lon_ext, angle_to_wp, 255*cruise)
             sqlat.append(lat_ext)
