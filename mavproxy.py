@@ -492,6 +492,9 @@ def cmd_wp(args):
         mpstate.status.set4Dwp = args[1]
         mpstate.status.set4Dtime = args[2]
         mpstate.master().waypoint_request_list_send()
+    elif args[0] == "closest":
+        args.pop(0)
+        cmd_new_wps(args)
     elif args[0] == "clear":
         mpstate.master().waypoint_clear_all_send()
     else:
@@ -943,7 +946,6 @@ command_map = {
     'kill'    : (cmd_kill,     'Crashes the plane'),
     'cmdreset': (cmd_ctrl_reset,'Gives radio control back'),
     'print'   : (cmd_print,    'Print something out for debugging'),
-    'upwps'   : (cmd_new_wps,  'Uploads a new wp pattern and sets a goto wp'),
     'setwp'   : (cmd_set_wps,  'Sets the best waypoint as the goto wp')
     }
 
